@@ -3,8 +3,6 @@ package com.FVSS.numisis.domain.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.validator.constraints.br.CPF;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,19 +29,8 @@ public class Professor extends Pessoa{
 	@JoinColumn(name = "usuario_id")
 	private Usuario usuario;
 
-	@Column(name = "nome")
-	private String nome;
-
-	@CPF(message = "CPF invalido")
-	@Column(name = "cpf")
-	private String cpf;
-
 	@Column(name = "carga_horaria")
 	private String cargaHoraria;
-
-	@OneToOne
-	@JoinColumn(name = "endereco_id")
-	private Endereco endereco;
 
 	@OneToOne
 	@JoinColumn(name = "dados_bancarios_id")

@@ -26,8 +26,8 @@ public class HistoricoDisciplina {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "media")
-	private Double media;
+	@Column(name = "nota")
+	private Double nota;
 
 	@Column(name = "faltas")
 	private Integer faltas;

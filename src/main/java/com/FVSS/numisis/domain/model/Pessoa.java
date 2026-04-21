@@ -1,17 +1,14 @@
 package com.FVSS.numisis.domain.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.validator.constraints.br.CPF;
 
-import com.FVSS.numisis.domain.enums.Role;
-
-import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -45,6 +42,19 @@ public abstract class Pessoa {
     @CPF(message = "CPF inválido")
     @Column(name = "cpf")
     private String cpf;
+
+    @Column(name = "idade")
+    private String idade;
+
+    @Column(name = "dataCadastro")
+    private LocalDateTime dataCadastro;
+
+    @Column(name = "dataNascimento")
+    private LocalDate dataNascimento;
+
+    @OneToOne
+    @JoinColumn(name = "endereco_id")
+    private Endereco endereco;
 
     @OneToMany(mappedBy = "pessoa")
     private List<Telefone> telefones = new ArrayList<>();

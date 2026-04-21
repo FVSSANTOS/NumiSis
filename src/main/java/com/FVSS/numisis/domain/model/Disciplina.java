@@ -38,8 +38,4 @@ public class Disciplina {
 	public Disciplina() {
 	}
 
-	public void setTurmas(List<Turma> turmas) {
-		this.turmas = turmas != null ? turmas : new ArrayList<>();
-	}
-
 }
