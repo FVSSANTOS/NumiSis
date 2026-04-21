@@ -30,33 +30,53 @@ public class EnderecoController {
 
     @PostMapping
     public ResponseEntity<Endereco> criar(@Valid @RequestBody Endereco endereco) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(enderecoService.salvar(endereco));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(enderecoService.salvar(endereco));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<Endereco>> listar() {
-        return ResponseEntity.ok(enderecoService.listarTodos());
+        try {
+            return ResponseEntity.ok(enderecoService.listarTodos());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Endereco> buscar(@PathVariable Long id) {
-        return enderecoService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return enderecoService.buscarPorId(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Endereco> atualizar(@PathVariable Long id, @Valid @RequestBody Endereco endereco) {
-        endereco.setId(id);
-        return ResponseEntity.ok(enderecoService.salvar(endereco));
+        try {
+            endereco.setId(id);
+            return ResponseEntity.ok(enderecoService.salvar(endereco));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (enderecoService.buscarPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (enderecoService.buscarPorId(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            enderecoService.deletarPorId(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        enderecoService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
     }
 }

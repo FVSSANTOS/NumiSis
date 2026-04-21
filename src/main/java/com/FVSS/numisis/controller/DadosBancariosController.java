@@ -30,34 +30,54 @@ public class DadosBancariosController {
 
     @PostMapping
     public ResponseEntity<DadosBancarios> criar(@Valid @RequestBody DadosBancarios dadosBancarios) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(dadosBancariosService.salvar(dadosBancarios));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(dadosBancariosService.salvar(dadosBancarios));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<DadosBancarios>> listar() {
-        return ResponseEntity.ok(dadosBancariosService.listarTodos());
+        try {
+            return ResponseEntity.ok(dadosBancariosService.listarTodos());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<DadosBancarios> buscar(@PathVariable Long id) {
-        return dadosBancariosService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return dadosBancariosService.buscarPorId(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<DadosBancarios> atualizar(@PathVariable Long id,
             @Valid @RequestBody DadosBancarios dadosBancarios) {
-        dadosBancarios.setId(id);
-        return ResponseEntity.ok(dadosBancariosService.salvar(dadosBancarios));
+        try {
+            dadosBancarios.setId(id);
+            return ResponseEntity.ok(dadosBancariosService.salvar(dadosBancarios));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (dadosBancariosService.buscarPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (dadosBancariosService.buscarPorId(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            dadosBancariosService.deletarPorId(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        dadosBancariosService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
     }
 }

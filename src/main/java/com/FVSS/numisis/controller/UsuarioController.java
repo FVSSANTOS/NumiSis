@@ -30,33 +30,53 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<Usuario> criar(@Valid @RequestBody Usuario usuario) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.salvar(usuario));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.salvar(usuario));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<Usuario>> listar() {
-        return ResponseEntity.ok(usuarioService.listarTodos());
+        try {
+            return ResponseEntity.ok(usuarioService.listarTodos());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> buscar(@PathVariable Long id) {
-        return usuarioService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return usuarioService.buscarPorId(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> atualizar(@PathVariable Long id, @Valid @RequestBody Usuario usuario) {
-        usuario.setId(id);
-        return ResponseEntity.ok(usuarioService.salvar(usuario));
+        try {
+            usuario.setId(id);
+            return ResponseEntity.ok(usuarioService.salvar(usuario));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (usuarioService.buscarPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (usuarioService.buscarPorId(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            usuarioService.deletarPorId(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        usuarioService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
     }
 }

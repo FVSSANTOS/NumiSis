@@ -30,34 +30,54 @@ public class CursoDisciplinaController {
 
     @PostMapping
     public ResponseEntity<CursoDisciplina> criar(@Valid @RequestBody CursoDisciplina cursoDisciplina) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(cursoDisciplinaService.salvar(cursoDisciplina));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(cursoDisciplinaService.salvar(cursoDisciplina));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<CursoDisciplina>> listar() {
-        return ResponseEntity.ok(cursoDisciplinaService.listarTodos());
+        try {
+            return ResponseEntity.ok(cursoDisciplinaService.listarTodos());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<CursoDisciplina> buscar(@PathVariable Long id) {
-        return cursoDisciplinaService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return cursoDisciplinaService.buscarPorId(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<CursoDisciplina> atualizar(@PathVariable Long id,
             @Valid @RequestBody CursoDisciplina cursoDisciplina) {
-        cursoDisciplina.setId(id);
-        return ResponseEntity.ok(cursoDisciplinaService.salvar(cursoDisciplina));
+        try {
+            cursoDisciplina.setId(id);
+            return ResponseEntity.ok(cursoDisciplinaService.salvar(cursoDisciplina));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (cursoDisciplinaService.buscarPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (cursoDisciplinaService.buscarPorId(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            cursoDisciplinaService.deletarPorId(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        cursoDisciplinaService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
     }
 }

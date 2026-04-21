@@ -30,33 +30,53 @@ public class MatriculaController {
 
     @PostMapping
     public ResponseEntity<Matricula> criar(@Valid @RequestBody Matricula matricula) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(matriculaService.salvar(matricula));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(matriculaService.salvar(matricula));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<Matricula>> listar() {
-        return ResponseEntity.ok(matriculaService.listarTodos());
+        try {
+            return ResponseEntity.ok(matriculaService.listarTodos());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Matricula> buscar(@PathVariable Long id) {
-        return matriculaService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return matriculaService.buscarPorId(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Matricula> atualizar(@PathVariable Long id, @Valid @RequestBody Matricula matricula) {
-        matricula.setId(id);
-        return ResponseEntity.ok(matriculaService.salvar(matricula));
+        try {
+            matricula.setId(id);
+            return ResponseEntity.ok(matriculaService.salvar(matricula));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (matriculaService.buscarPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (matriculaService.buscarPorId(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            matriculaService.deletarPorId(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        matriculaService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
     }
 }

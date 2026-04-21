@@ -30,33 +30,53 @@ public class TurmaController {
 
     @PostMapping
     public ResponseEntity<Turma> criar(@Valid @RequestBody Turma turma) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(turmaService.salvar(turma));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(turmaService.salvar(turma));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<Turma>> listar() {
-        return ResponseEntity.ok(turmaService.listarTodos());
+        try {
+            return ResponseEntity.ok(turmaService.listarTodos());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Turma> buscar(@PathVariable Long id) {
-        return turmaService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return turmaService.buscarPorId(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Turma> atualizar(@PathVariable Long id, @Valid @RequestBody Turma turma) {
-        turma.setId(id);
-        return ResponseEntity.ok(turmaService.salvar(turma));
+        try {
+            turma.setId(id);
+            return ResponseEntity.ok(turmaService.salvar(turma));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (turmaService.buscarPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (turmaService.buscarPorId(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            turmaService.deletarPorId(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        turmaService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
     }
 }

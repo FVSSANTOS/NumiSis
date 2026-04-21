@@ -30,33 +30,53 @@ public class CursoController {
 
     @PostMapping
     public ResponseEntity<Curso> criar(@Valid @RequestBody Curso curso) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(cursoService.salvar(curso));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(cursoService.salvar(curso));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<Curso>> listar() {
-        return ResponseEntity.ok(cursoService.listarTodos());
+        try {
+            return ResponseEntity.ok(cursoService.listarTodos());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Curso> buscar(@PathVariable Long id) {
-        return cursoService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return cursoService.buscarPorId(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Curso> atualizar(@PathVariable Long id, @Valid @RequestBody Curso curso) {
-        curso.setId(id);
-        return ResponseEntity.ok(cursoService.salvar(curso));
+        try {
+            curso.setId(id);
+            return ResponseEntity.ok(cursoService.salvar(curso));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (cursoService.buscarPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (cursoService.buscarPorId(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            cursoService.deletarPorId(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        cursoService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
     }
 }

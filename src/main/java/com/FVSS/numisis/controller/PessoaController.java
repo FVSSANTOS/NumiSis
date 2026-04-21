@@ -2,6 +2,7 @@ package com.FVSS.numisis.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,22 +25,34 @@ public class PessoaController {
 
     @GetMapping
     public ResponseEntity<List<Pessoa>> listar() {
-        return ResponseEntity.ok(pessoaService.listarTodos());
+        try {
+            return ResponseEntity.ok(pessoaService.listarTodos());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Pessoa> buscar(@PathVariable Long id) {
-        return pessoaService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return pessoaService.buscarPorId(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (pessoaService.buscarPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (pessoaService.buscarPorId(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            pessoaService.deletarPorId(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        pessoaService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
     }
 }

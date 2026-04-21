@@ -1,7 +1,8 @@
 package com.FVSS.numisis.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.FVSS.numisis.domain.model.Aluno;
+import com.FVSS.numisis.response.AuthResponse;
 import com.FVSS.numisis.service.AlunoService;
 
 import jakarta.validation.Valid;
@@ -29,34 +31,68 @@ public class AlunoController {
     }
 
     @PostMapping
-    public ResponseEntity<Aluno> criar(@Valid @RequestBody Aluno aluno) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(alunoService.salvar(aluno));
+    public ResponseEntity<AuthResponse<?>> criar(@Valid @RequestBody Aluno aluno) {
+        try {
+            alunoService.salvar(aluno);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse<>("Aluno salvo com sucesso!"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(
+                                     new AuthResponse<>("Erro no processamento do servidor", e)
+                                  );
+        }
     }
 
     @GetMapping
-    public ResponseEntity<List<Aluno>> listar() {
-        return ResponseEntity.ok(alunoService.listarTodos());
+    public ResponseEntity<Page<Aluno>> listar(     
+        @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+        try {
+            return ResponseEntity.ok(alunoService.listarTodos(pageable));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Aluno> buscar(@PathVariable Long id) {
-        return alunoService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id) {
+        try{
+            var aluno = alunoService.buscarPorId(id);
+            return ResponseEntity.status(HttpStatus.OK)
+            .body(new AuthResponse<>("Aluno encontrado com sucesso", aluno));
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(
+                                     new AuthResponse<>("Erro no processamento do servidor", e)
+                                  );
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Aluno> atualizar(@PathVariable Long id, @Valid @RequestBody Aluno aluno) {
-        aluno.setId(id);
-        return ResponseEntity.ok(alunoService.salvar(aluno));
+    public ResponseEntity<AuthResponse<?>> atualizar(@PathVariable Long id, @Valid @RequestBody Aluno aluno) {
+        try {
+            aluno.setId(id);
+            var alunoAtualizado = alunoService.atualizar(aluno);
+            return ResponseEntity.status(HttpStatus.OK)
+                                 .body(new AuthResponse<>("Aluno atualizado com sucesso!", alunoAtualizado));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(
+                                    new AuthResponse<>("Erro no processamento do servidor", e)
+                                 );
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (alunoService.buscarPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<AuthResponse<?>> remover(@PathVariable Long id) {
+        try {
+            alunoService.deletarPorId(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                                 .body(new AuthResponse<>("Aluno deletado com sucesso!"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(
+                                    new AuthResponse<>("Erro no processamento do servidor", e)
+                                 );
         }
-        alunoService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
     }
 }

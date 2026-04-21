@@ -30,33 +30,53 @@ public class DisciplinaController {
 
     @PostMapping
     public ResponseEntity<Disciplina> criar(@Valid @RequestBody Disciplina disciplina) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(disciplinaService.salvar(disciplina));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(disciplinaService.salvar(disciplina));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<Disciplina>> listar() {
-        return ResponseEntity.ok(disciplinaService.listarTodos());
+        try {
+            return ResponseEntity.ok(disciplinaService.listarTodos());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Disciplina> buscar(@PathVariable Long id) {
-        return disciplinaService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return disciplinaService.buscarPorId(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Disciplina> atualizar(@PathVariable Long id, @Valid @RequestBody Disciplina disciplina) {
-        disciplina.setId(id);
-        return ResponseEntity.ok(disciplinaService.salvar(disciplina));
+        try {
+            disciplina.setId(id);
+            return ResponseEntity.ok(disciplinaService.salvar(disciplina));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (disciplinaService.buscarPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (disciplinaService.buscarPorId(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            disciplinaService.deletarPorId(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        disciplinaService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
     }
 }

@@ -30,35 +30,55 @@ public class HistoricoDisciplinaController {
 
     @PostMapping
     public ResponseEntity<HistoricoDisciplina> criar(@Valid @RequestBody HistoricoDisciplina historicoDisciplina) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(historicoDisciplinaService.salvar(historicoDisciplina));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(historicoDisciplinaService.salvar(historicoDisciplina));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<HistoricoDisciplina>> listar() {
-        return ResponseEntity.ok(historicoDisciplinaService.listarTodos());
+        try {
+            return ResponseEntity.ok(historicoDisciplinaService.listarTodos());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<HistoricoDisciplina> buscar(@PathVariable Long id) {
-        return historicoDisciplinaService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return historicoDisciplinaService.buscarPorId(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<HistoricoDisciplina> atualizar(@PathVariable Long id,
             @Valid @RequestBody HistoricoDisciplina historicoDisciplina) {
-        historicoDisciplina.setId(id);
-        return ResponseEntity.ok(historicoDisciplinaService.salvar(historicoDisciplina));
+        try {
+            historicoDisciplina.setId(id);
+            return ResponseEntity.ok(historicoDisciplinaService.salvar(historicoDisciplina));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (historicoDisciplinaService.buscarPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (historicoDisciplinaService.buscarPorId(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            historicoDisciplinaService.deletarPorId(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        historicoDisciplinaService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
     }
 }

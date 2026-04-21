@@ -30,33 +30,53 @@ public class TelefoneController {
 
     @PostMapping
     public ResponseEntity<Telefone> criar(@Valid @RequestBody Telefone telefone) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(telefoneService.salvar(telefone));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(telefoneService.salvar(telefone));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<Telefone>> listar() {
-        return ResponseEntity.ok(telefoneService.listarTodos());
+        try {
+            return ResponseEntity.ok(telefoneService.listarTodos());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Telefone> buscar(@PathVariable Long id) {
-        return telefoneService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return telefoneService.buscarPorId(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Telefone> atualizar(@PathVariable Long id, @Valid @RequestBody Telefone telefone) {
-        telefone.setId(id);
-        return ResponseEntity.ok(telefoneService.salvar(telefone));
+        try {
+            telefone.setId(id);
+            return ResponseEntity.ok(telefoneService.salvar(telefone));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (telefoneService.buscarPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (telefoneService.buscarPorId(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            telefoneService.deletarPorId(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        telefoneService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
     }
 }

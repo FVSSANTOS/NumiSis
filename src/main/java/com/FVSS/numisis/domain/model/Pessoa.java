@@ -40,11 +40,11 @@ public abstract class Pessoa {
     private String nome;
 
     @CPF(message = "CPF inválido")
-    @Column(name = "cpf")
+    @Column(name = "cpf", unique = true)
     private String cpf;
 
     @Column(name = "idade")
-    private String idade;
+    private Integer idade;
 
     @Column(name = "dataCadastro")
     private LocalDateTime dataCadastro;

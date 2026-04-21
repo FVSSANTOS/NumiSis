@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,9 +25,11 @@ public class Aluno extends Pessoa {
 	private String nomePai;
 
 	@Column(name = "condicao_especial")
+	@NotBlank
 	private String condicaoEspecial;
 
 	@Column(name = "alergia")
+	@NotBlank
 	private String alergia;
 
 	@OneToMany(mappedBy = "aluno")
@@ -35,8 +38,12 @@ public class Aluno extends Pessoa {
 	@OneToMany(mappedBy = "aluno")
 	private List<HistoricoDisciplina> historicos = new ArrayList<>();
 
-	public Aluno() {
+	public Aluno(String nomeMae, String nomePai, String condicaoEspecial, String alergia) {
 		super();
+		this.alergia = alergia;
+		this.condicaoEspecial = condicaoEspecial;
+		this.nomeMae = nomeMae;
+		this.nomePai = nomePai;
 	}
 
 }
