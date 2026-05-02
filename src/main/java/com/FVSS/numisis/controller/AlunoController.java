@@ -1,8 +1,9 @@
 package com.FVSS.numisis.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.FVSS.numisis.domain.model.Aluno;
+import com.FVSS.numisis.dto.PageResponse;
 import com.FVSS.numisis.response.AuthResponse;
 import com.FVSS.numisis.service.AlunoService;
 
@@ -44,12 +46,27 @@ public class AlunoController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Aluno>> listar(     
-        @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+    public ResponseEntity<AuthResponse<?>> listar(Pageable pageable) {
         try {
-            return ResponseEntity.ok(alunoService.listarTodos(pageable));
+            Page<Aluno> page = alunoService.listarTodos(pageable);
+            List<Aluno> alunos = page.getContent()
+                                     .stream()
+                                     .toList();
+            
+            return ResponseEntity.status(HttpStatus.OK).body(new AuthResponse<>(
+            "Alunos retornados com sucesso!",
+            new PageResponse<>(
+                alunos,
+                page.getNumber(), 
+                page.getSize(), 
+                page.getTotalElements(), 
+                page.getTotalPages())
+             ));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(new AuthResponse<>(
+                                     "Erro no processamento do servidor", e)
+                                  );
         }
     }
 

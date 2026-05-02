@@ -1,6 +1,5 @@
 package com.FVSS.numisis.domain.model;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,5 +44,7 @@ public class Aluno extends Pessoa {
 		this.nomeMae = nomeMae;
 		this.nomePai = nomePai;
 	}
+
+    public Aluno() {}
 
 }

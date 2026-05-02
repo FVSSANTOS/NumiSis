@@ -34,4 +34,11 @@ public class DadosBancarios {
 	public DadosBancarios() {
 	}
 
+	public DadosBancarios(String banco, String agencia, String conta, String pix){
+		this.banco = banco;
+		this.agencia = agencia;
+		this.conta = conta;
+		this.pix = pix;
+	}
+
 }

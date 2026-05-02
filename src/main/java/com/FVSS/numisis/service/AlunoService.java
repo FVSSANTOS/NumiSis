@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
 import com.FVSS.numisis.domain.model.Aluno;
@@ -42,7 +43,7 @@ public class AlunoService {
         return alunoRepository.save(aluno);
     }
 
-    public  Page<Aluno> listarTodos(Pageable pageable) {
+    public Page<Aluno> listarTodos(Pageable pageable) {
         return alunoRepository.findAll(pageable);
     }
 
