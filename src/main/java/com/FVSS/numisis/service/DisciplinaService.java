@@ -3,6 +3,8 @@ package com.FVSS.numisis.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.FVSS.numisis.domain.model.Disciplina;
@@ -21,8 +23,8 @@ public class DisciplinaService {
         return disciplinaRepository.save(disciplina);
     }
 
-    public List<Disciplina> listarTodos() {
-        return disciplinaRepository.findAll();
+    public Page<Disciplina> listarTodos(Pageable pageable) {
+        return disciplinaRepository.findAll(pageable);
     }
 
     public Optional<Disciplina> buscarPorId(Long id) {

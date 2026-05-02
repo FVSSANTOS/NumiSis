@@ -2,6 +2,8 @@ package com.FVSS.numisis.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,7 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.FVSS.numisis.domain.model.Aluno;
 import com.FVSS.numisis.domain.model.Curso;
+import com.FVSS.numisis.dto.PageResponse;
+import com.FVSS.numisis.response.AuthResponse;
 import com.FVSS.numisis.service.CursoService;
 
 import jakarta.validation.Valid;
@@ -38,13 +43,30 @@ public class CursoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Curso>> listar() {
+    public ResponseEntity<AuthResponse<?>> listar(Pageable pageable) {
         try {
-            return ResponseEntity.ok(cursoService.listarTodos());
+            Page<Curso> page = cursoService.listarTodos(pageable);
+            List<Curso> cursos = page.getContent()
+                                     .stream()
+                                     .toList();
+            
+            return ResponseEntity.status(HttpStatus.OK).body(new AuthResponse<>(
+            "Cursos retornados com sucesso!",
+            new PageResponse<>(
+                cursos,
+                page.getNumber(), 
+                page.getSize(), 
+                page.getTotalElements(), 
+                page.getTotalPages())
+             ));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(new AuthResponse<>(
+                                     "Erro no processamento do servidor", e)
+                                  );
         }
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Curso> buscar(@PathVariable Long id) {

@@ -1,8 +1,9 @@
 package com.FVSS.numisis.service;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.FVSS.numisis.domain.model.Curso;
@@ -21,8 +22,8 @@ public class CursoService {
         return cursoRepository.save(curso);
     }
 
-    public List<Curso> listarTodos() {
-        return cursoRepository.findAll();
+    public Page<Curso> listarTodos(Pageable pageable) {
+        return cursoRepository.findAll(pageable);
     }
 
     public Optional<Curso> buscarPorId(Long id) {

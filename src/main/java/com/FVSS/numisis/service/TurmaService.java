@@ -3,6 +3,8 @@ package com.FVSS.numisis.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.FVSS.numisis.domain.model.Turma;
@@ -21,8 +23,8 @@ public class TurmaService {
         return turmaRepository.save(turma);
     }
 
-    public List<Turma> listarTodos() {
-        return turmaRepository.findAll();
+    public Page<Turma> listarTodos(Pageable pageable) {
+        return turmaRepository.findAll(pageable);
     }
 
     public Optional<Turma> buscarPorId(Long id) {
