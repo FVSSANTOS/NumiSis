@@ -8,16 +8,23 @@ import org.springframework.stereotype.Service;
 import com.FVSS.numisis.domain.model.Usuario;
 import com.FVSS.numisis.infrastructure.repository.UsuarioRepository;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    private final PasswordEncoder passwordEncoder;
+
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Usuario salvar(Usuario usuario) {
+        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         return usuarioRepository.save(usuario);
     }
 

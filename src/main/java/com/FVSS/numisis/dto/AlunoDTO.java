@@ -1,5 +1,8 @@
 package com.FVSS.numisis.dto;
 
-public class AlunoDTO {
-
-}
+public record AlunoDTO<T>(
+     long id,
+     String nome,
+     String cpf,
+     int idade
+ ) {}

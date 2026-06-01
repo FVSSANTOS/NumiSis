@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.FVSS.numisis.domain.model.Curso;
 import com.FVSS.numisis.domain.model.Disciplina;
 import com.FVSS.numisis.dto.PageResponse;
 import com.FVSS.numisis.response.AuthResponse;
