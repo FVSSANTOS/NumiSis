@@ -53,6 +53,9 @@ public abstract class Pessoa {
     @Column(name = "dataNascimento")
     private LocalDate dataNascimento;
 
+    @Column(name = "email")
+    private String email;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "endereco_id")
     private Endereco endereco;

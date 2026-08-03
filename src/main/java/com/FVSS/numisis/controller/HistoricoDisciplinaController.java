@@ -33,12 +33,13 @@ public class HistoricoDisciplinaController {
     }
 
     @PostMapping
-    public ResponseEntity<HistoricoDisciplina> criar(@Valid @RequestBody HistoricoDisciplina historicoDisciplina) {
+    public ResponseEntity<AuthResponse<?>> criar(@Valid @RequestBody HistoricoDisciplina historicoDisciplina) {
         try {
+            var historicoSaved = historicoDisciplinaService.salvar(historicoDisciplina);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(historicoDisciplinaService.salvar(historicoDisciplina));
+                    .body(new AuthResponse<>("Histórico salvo com sucesso!", historicoSaved));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
@@ -68,37 +69,36 @@ public class HistoricoDisciplinaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<HistoricoDisciplina> buscar(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id) {
         try {
-            return historicoDisciplinaService.buscarPorId(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            var historico = historicoDisciplinaService.buscarPorId(id);
+            if (historico == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(new AuthResponse<>("Histórico encontrado com sucesso!", historico));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<HistoricoDisciplina> atualizar(@PathVariable Long id,
+    public ResponseEntity<AuthResponse<?>> atualizar(@PathVariable Long id,
             @Valid @RequestBody HistoricoDisciplina historicoDisciplina) {
         try {
             historicoDisciplina.setId(id);
-            return ResponseEntity.ok(historicoDisciplinaService.salvar(historicoDisciplina));
+            return ResponseEntity.ok(new AuthResponse<>("Histórico atualizado com sucesso!", historicoDisciplinaService.salvar(historicoDisciplina)));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> remover(@PathVariable Long id) {
         try {
-            if (historicoDisciplinaService.buscarPorId(id).isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
             historicoDisciplinaService.deletarPorId(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 }

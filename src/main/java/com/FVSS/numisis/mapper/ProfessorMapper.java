@@ -1,6 +1,7 @@
-package com.FVSS.numisis.dto;
+package com.FVSS.numisis.mapper;
 
 import com.FVSS.numisis.domain.model.Professor;
+import com.FVSS.numisis.dto.ProfessorDTO;
 
 public class ProfessorMapper {
 
@@ -12,8 +13,7 @@ public class ProfessorMapper {
             entity.getNome(), 
             entity.getCpf(), 
             entity.getIdade(), 
-            entity.getCargaHoraria(), 
-            entity.getDadosBancarios());
+            entity.getCargaHoraria());
         return dto;
     }
 }

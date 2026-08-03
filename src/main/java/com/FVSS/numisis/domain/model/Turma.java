@@ -3,6 +3,8 @@ package com.FVSS.numisis.domain.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -41,10 +43,12 @@ public class Turma {
 	@Column(name = "horario_termino")
 	private String horarioTermino;
 
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "disciplina_id")
 	private Disciplina disciplina;
 
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "professor_id")
 	private Professor professor;

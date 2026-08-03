@@ -3,6 +3,7 @@ package com.FVSS.numisis.domain.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -25,7 +26,7 @@ public class Professor extends Pessoa{
 	@Column(name = "carga_horaria")
 	private String cargaHoraria;
 
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "dados_bancarios_id")
 	private DadosBancarios dadosBancarios;
 

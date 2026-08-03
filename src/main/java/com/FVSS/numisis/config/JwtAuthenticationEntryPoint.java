@@ -8,7 +8,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import com.FVSS.numisis.response.AuthResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import tools.jackson.databind.json.JsonMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,10 +17,10 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-	private final ObjectMapper objectMapper;
+	private final JsonMapper jsonMapper;
 
-	public JwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
-		this.objectMapper = objectMapper;
+	public JwtAuthenticationEntryPoint(JsonMapper jsonMapper) {
+		this.jsonMapper = jsonMapper;
 	}
 
 	@Override
@@ -32,6 +33,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
 		AuthResponse<?> body = new AuthResponse<>("Não autenticado. Faça login ou envie um token JWT válido.");
-		objectMapper.writeValue(response.getOutputStream(), body);
+		jsonMapper.writeValue(response.getOutputStream(), body);
 	}
 }

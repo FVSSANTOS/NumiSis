@@ -8,7 +8,8 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import com.FVSS.numisis.response.AuthResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import tools.jackson.databind.json.JsonMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,10 +17,10 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
-	private final ObjectMapper objectMapper;
+	private final JsonMapper jsonMapper;
 
-	public CustomAccessDeniedHandler(ObjectMapper objectMapper) {
-		this.objectMapper = objectMapper;
+	public CustomAccessDeniedHandler(JsonMapper jsonMapper) {
+		this.jsonMapper = jsonMapper;
 	}
 
 	@Override
@@ -32,6 +33,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
 		AuthResponse<?> body = new AuthResponse<>("Acesso negado. Você não tem permissão para este recurso.");
-		objectMapper.writeValue(response.getOutputStream(), body);
+		jsonMapper.writeValue(response.getOutputStream(), body);
 	}
 }

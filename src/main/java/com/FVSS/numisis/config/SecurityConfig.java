@@ -64,7 +64,6 @@ public class SecurityConfig {
 								"/api/cursos-disciplinas/**")
 						.hasAnyRole("ADMIN", "PROFESSOR")
 						.requestMatchers(
-								"/api/alunos/**",
 								"/api/matriculas/**",
 								"/api/historicos-disciplinas/**")
 						.hasAnyRole("ADMIN", "PROFESSOR", "ALUNO")

@@ -33,11 +33,13 @@ public class ProfessorController {
     }
 
     @PostMapping
-    public ResponseEntity<Professor> criar(@Valid @RequestBody Professor professor) {
+    public ResponseEntity<AuthResponse<?>> criar(@Valid @RequestBody Professor professor) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(professorService.salvar(professor));
+            var professorSaved = professorService.salvar(professor);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse<>("Professor salvo com sucesso!", professorSaved));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
@@ -68,13 +70,14 @@ public class ProfessorController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Professor> buscar(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id) {
         try {
-            return professorService.buscarPorId(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            var professor =  professorService.buscarPorId(id);
+            return ResponseEntity.status(HttpStatus.OK)
+            .body(new AuthResponse<>("Professor encontrado com sucesso", professor));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
@@ -91,7 +94,7 @@ public class ProfessorController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
         try {
-            if (professorService.buscarPorId(id).isEmpty()) {
+            if (professorService.buscarPorId(id) == null) {
                 return ResponseEntity.notFound().build();
             }
             professorService.deletarPorId(id);

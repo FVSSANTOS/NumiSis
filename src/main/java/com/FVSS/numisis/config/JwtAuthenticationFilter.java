@@ -23,7 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtService jwtService;
 	private final UserDetailsServiceImpl userDetailsService;
-
+	
 	public JwtAuthenticationFilter(JwtService jwtService, UserDetailsServiceImpl userDetailsService) {
 		this.jwtService = jwtService;
 		this.userDetailsService = userDetailsService;

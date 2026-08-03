@@ -10,7 +10,7 @@ import com.FVSS.numisis.infrastructure.repository.EnderecoRepository;
 
 @Service
 public class EnderecoService {
-
+ 
     private final EnderecoRepository enderecoRepository;
 
     public EnderecoService(EnderecoRepository enderecoRepository) {

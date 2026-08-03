@@ -1,6 +1,7 @@
 package com.FVSS.numisis.domain.model;
 
 import com.FVSS.numisis.domain.enums.StatusHistorico;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,10 +39,12 @@ public class HistoricoDisciplina {
 	@Column(name = "semestre")
 	private Integer semestre;
 
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "aluno_id")
 	private Aluno aluno;
 
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "turma_id")
 	private Turma turma;

@@ -1,13 +1,11 @@
 package com.FVSS.numisis.service;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.FVSS.numisis.domain.model.Disciplina;
+import com.FVSS.numisis.exception.exceptions.NaoEncontradoException;
 import com.FVSS.numisis.infrastructure.repository.DisciplinaRepository;
 
 @Service
@@ -27,8 +25,9 @@ public class DisciplinaService {
         return disciplinaRepository.findAll(pageable);
     }
 
-    public Optional<Disciplina> buscarPorId(Long id) {
-        return disciplinaRepository.findById(id);
+    public Disciplina buscarPorId(Long id) {
+        return disciplinaRepository.findById(id)
+            .orElseThrow(() -> new NaoEncontradoException("Disciplina não encontrada com id: " + id));
     }
 
     public void deletarPorId(Long id) {
