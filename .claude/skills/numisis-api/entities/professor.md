@@ -12,7 +12,7 @@ Estende [Pessoa](pessoa.md) (campos `id`, `nome`, `cpf`, `idade`, `dataCadastro`
 
 `SecurityConfig`: `/api/professores/**` exige role `ADMIN` ou `PROFESSOR` para **todas** as operações (não há `@PreAuthorize` mais granular no controller).
 
-**Todos os endpoints retornam a entidade `Professor` completa — não existe uso do `ProfessorDTO`/`ProfessorMapper` no controller atual**, apesar de esses arquivos existirem no projeto.
+`listar`/`buscar` retornam `ProfessorDTO` (via `ProfessorMapper`); `criar`/`atualizar` retornam a entidade `Professor` completa — mesmo padrão de [Aluno](aluno.md).
 
 ---
 
@@ -26,9 +26,9 @@ Retorno: `200 OK`
 
 ```json
 {
-  "message": "Históricos retornados com sucesso!",
+  "message": "Professores retornados com sucesso!",
   "dado": {
-    "content": [ /* Professor[] (entidade completa) */ ],
+    "content": [ /* ProfessorDTO[] */ ],
     "page": 0,
     "size": 20,
     "totalElements": 5,
@@ -37,15 +37,24 @@ Retorno: `200 OK`
 }
 ```
 
-> A mensagem "Históricos retornados com sucesso!" está incorreta no backend (copiado de outro endpoint) — ignore o texto, use apenas `dado`.
-
-### Campos de Professor (entidade completa, além dos herdados de Pessoa)
+### ProfessorDTO
 
 | Campo | Tipo | Descrição |
 |---|---|---|
+| `id` | number | |
+| `nome` | string | |
+| `cpf` | string | |
+| `idade` | number | |
+| `dataNascimento` | string (`yyyy-MM-dd`) | |
+| `email` | string | |
 | `cargaHoraria` | string | |
-| `dadosBancarios` | objeto `DadosBancarios` \| null | `@OneToOne(cascade = ALL)` — ver [dados-bancarios.md](dados-bancarios.md) |
-| `turmas` | `Turma[]` | lista de turmas lecionadas |
+| `endereco` | objeto `Endereco` \| `null` | ver [endereco.md](endereco.md) |
+| `telefones` | `Telefone[]` | ver [telefone.md](telefone.md) |
+| `dadosBancarios` | objeto `DadosBancarios` \| `null` | ver [dados-bancarios.md](dados-bancarios.md) |
+| `turmas` | `Turma[]` | turmas lecionadas pelo professor — ver [turma.md](turma.md) (lembrando que cada `Turma` tem `disciplina`/`professor` ocultos por `@JsonIgnore`) |
+| `usuarioLogin` | string \| `null` | apenas o `login` do `Usuario` vinculado — a senha (hash) **não** é exposta aqui |
+
+Não inclui `dataCadastro` nem o objeto `Usuario` completo (só `usuarioLogin`).
 
 ---
 
@@ -56,7 +65,7 @@ Retorno: `200 OK`
 Retorno: `200 OK`
 
 ```json
-{ "message": "Professor encontrado com sucesso", "dado": { /* Professor completo */ } }
+{ "message": "Professor encontrado com sucesso", "dado": { /* ProfessorDTO */ } }
 ```
 
 ---
@@ -71,11 +80,13 @@ Body: entidade `Professor` completa.
 |---|---|---|---|
 | `nome`, `cpf`, `idade`, `dataNascimento`, `dataCadastro`, `email` | — | não (sem validações declaradas na entidade) | herdados de Pessoa |
 | `endereco` | objeto `Endereco` | não | cascata via Pessoa |
-| `usuario` | objeto `Usuario` | não | **não** é salvo em cascata (ver nota acima) — cadastre o usuário separadamente em `/api/usuarios` e referencie pelo `id`, ou espere que o vínculo não persista |
+| `usuario` | objeto `Usuario` | não | **não** é salvo em cascata (ver nota acima) — cadastre o usuário separadamente em `/api/usuarios` e referencie pelo `id`, ou espere que o vínculo não persista. Um mesmo `Usuario` não pode ficar vinculado a mais de uma pessoa (`usuario_id` é `unique` na tabela `pessoa`, validado também em código) |
 | `cargaHoraria` | string | não | |
 | `dadosBancarios` | objeto `DadosBancarios` | não | persistido em cascata se enviado |
 
-Não há validação de CPF duplicado no `ProfessorService` (diferente de Aluno).
+Não há validação de CPF duplicado no `ProfessorService` (diferente de Aluno). Há, porém, validação de `usuario` (`ProfessorService.salvar`, usado tanto em `criar` quanto em `atualizar`), retornando `400 Bad Request` via `catch (RegraNegocioException e)` específico no controller:
+- `login` já existente e `usuario.id` nulo (usuário novo) → "Já existe um usuário com esse login."
+- `usuario.id` preenchido referenciando um usuário **já vinculado a outra pessoa** → "Esse usuário já está vinculado a outra pessoa."
 
 Retorno: `201 Created`
 
@@ -89,9 +100,9 @@ Retorno: `201 Created`
 
 `PUT /api/professores/{id}`
 
-Body: mesmo formato de Criar. **Sem envelope** (diferente dos demais métodos deste controller):
+Body: mesmo formato de Criar. Assim como em Aluno, se o corpo **não incluir** `usuario`, o backend preserva o `usuario` que o professor já tinha (em vez de desvincular) — `ProfessorService.salvar` busca o professor existente e reaproveita o `usuario` quando o campo vem ausente/`null` no `PUT`.
 
-Retorno: `200 OK`, corpo é o `Professor` cru (sem `message`/`dado`).
+Retorno: `200 OK`, `{ "message": "Professor atualizado com sucesso!", "dado": { /* Professor completo */ } }`.
 
 ---
 
@@ -99,9 +110,9 @@ Retorno: `200 OK`, corpo é o `Professor` cru (sem `message`/`dado`).
 
 `DELETE /api/professores/{id}`
 
-**Sem envelope.** Retorno: `204 No Content` (corpo vazio).
+Retorno: `204 No Content`, `{ "message": "Professor deletado com sucesso!" }`.
 
 ## Observações
 
-- Shape inconsistente dentro do próprio controller: `criar`/`listar`/`buscar` usam `AuthResponse<Professor>`; `atualizar`/`remover` retornam o `Professor` cru / vazio, sem envelope. Verifique sempre qual método está chamando.
-- Id inexistente em `GET`/`DELETE` deveria retornar 404, mas como o `catch (Exception e)` genérico intercepta a `NaoEncontradoException` antes, o resultado real é **500**.
+- Id inexistente em `GET`/`DELETE` deveria retornar 404, mas como o `catch (Exception e)` genérico intercepta a `NaoEncontradoException` antes, o resultado real observado é **500**, com `dado` contendo a exceção serializada em vez de uma mensagem de "não encontrado".
+- Listagem/Busca retornam `ProfessorDTO` (com `usuarioLogin`); Criação/Atualização retornam a entidade `Professor` completa (com o objeto `Usuario` inteiro, incluindo a senha em hash — ver aviso de segurança no `SKILL.md`). Não assuma o mesmo shape entre as operações.

@@ -5,4 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.FVSS.numisis.domain.model.Pessoa;
 
 public interface PessoaRepository extends JpaRepository<Pessoa, Long> {
+
+    boolean existsByUsuarioId(Long usuarioId);
+
+    boolean existsByUsuarioIdAndIdNot(Long usuarioId, Long id);
 }

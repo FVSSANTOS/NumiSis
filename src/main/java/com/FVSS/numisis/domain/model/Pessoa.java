@@ -34,7 +34,7 @@ public abstract class Pessoa {
     private Long id;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "usuario_id", unique = true)
     private Usuario usuario;
 
     @Column(name = "nome")
@@ -60,7 +60,7 @@ public abstract class Pessoa {
     @JoinColumn(name = "endereco_id")
     private Endereco endereco;
 
-    @OneToMany(mappedBy = "pessoa")
+    @OneToMany(mappedBy = "pessoa", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Telefone> telefones = new ArrayList<>();
 
 }

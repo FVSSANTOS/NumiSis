@@ -26,7 +26,11 @@ Entidade de associação entre [Curso](curso.md) e [Disciplina](disciplina.md).
 
 `GET /api/cursos-disciplinas`
 
-**Sem paginação, sem envelope.** Retorno: `200 OK`, array de `CursoDisciplina` (cada item praticamente só com `id`).
+**Sem paginação.** Retorno: `200 OK`
+
+```json
+{ "message": "Vínculos entre cursos e disciplinas retornados com sucesso!", "dado": [ /* CursoDisciplina[] (cada item praticamente só com id) */ ] }
+```
 
 ---
 
@@ -34,7 +38,7 @@ Entidade de associação entre [Curso](curso.md) e [Disciplina](disciplina.md).
 
 `GET /api/cursos-disciplinas/{id}`
 
-**Sem envelope.** Retorno: `200 OK`, ou `404 Not Found` se não existir.
+Retorno: `200 OK`, `{ "message": "Vínculo entre curso e disciplina encontrado com sucesso!", "dado": { /* CursoDisciplina */ } }`, ou `404 Not Found`, `{ "message": "Vínculo entre curso e disciplina não encontrado com id: {id}" }` se não existir.
 
 ---
 
@@ -42,7 +46,7 @@ Entidade de associação entre [Curso](curso.md) e [Disciplina](disciplina.md).
 
 `POST /api/cursos-disciplinas`
 
-**Sem envelope.** Retorno: `201 Created`.
+Retorno: `201 Created`, `{ "message": "Vínculo entre curso e disciplina salvo com sucesso!", "dado": { /* CursoDisciplina */ } }`.
 
 ---
 
@@ -50,7 +54,7 @@ Entidade de associação entre [Curso](curso.md) e [Disciplina](disciplina.md).
 
 `PUT /api/cursos-disciplinas/{id}`
 
-**Sem envelope.** Retorno: `200 OK`.
+Retorno: `200 OK`, `{ "message": "Vínculo entre curso e disciplina atualizado com sucesso!", "dado": { /* CursoDisciplina */ } }`.
 
 ---
 
@@ -58,9 +62,8 @@ Entidade de associação entre [Curso](curso.md) e [Disciplina](disciplina.md).
 
 `DELETE /api/cursos-disciplinas/{id}`
 
-**Sem envelope.** Retorno: `204 No Content`, ou `404 Not Found` se não existir.
+Retorno: `204 No Content`, `{ "message": "Vínculo entre curso e disciplina deletado com sucesso!" }`, ou `404 Not Found`, `{ "message": "Vínculo entre curso e disciplina não encontrado com id: {id}" }` se não existir.
 
 ## Observações
 
-- Nenhum método usa `AuthResponse` neste controller (diferente de Curso/Disciplina, que envelopam ao menos a listagem).
 - Dado o `@JsonIgnore` em ambas as relações, esta entidade tem utilidade limitada para exibição direta na UI — sirva-se dela apenas para criar/remover vínculos, não para exibir "quais disciplinas um curso tem" (prefira montar essa visão a partir de outra fonte, ou solicite ajuste no backend para expor `cursoId`/`disciplinaId`).

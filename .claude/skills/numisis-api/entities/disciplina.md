@@ -68,7 +68,7 @@ Retorno: `200 OK`
 
 Body: `{ "nome": string, "descricao": string }` (sem validações declaradas).
 
-**Sem envelope.** Retorno: `201 Created`, corpo é a entidade `Disciplina` crua (inclui `cursoDisciplinas: []` e `turmas: []` vazios).
+Retorno: `201 Created`, `{ "message": "Disciplina salva com sucesso!", "dado": { /* Disciplina crua, inclui cursoDisciplinas: [] e turmas: [] vazios */ } }`.
 
 ---
 
@@ -90,11 +90,10 @@ Retorno: `200 OK`
 
 `DELETE /api/disciplinas/{id}`
 
-Retorno: `204 No Content`, `AuthResponse` sem `dado`.
+Retorno: `204 No Content`, `{ "message": "Disciplina deletada com sucesso!" }`.
 
-Id inexistente: o controller checa `if (disciplinaService.buscarPorId(id) == null)`, mas `buscarPorId` lança `NaoEncontradoException` em vez de retornar `null` — essa checagem nunca dispara. A exceção acaba caindo no `catch (Exception e)` genérico, então o resultado real observado é **500**, não 404.
+Id inexistente: o controller checa `if (disciplinaService.buscarPorId(id) == null)`, mas `buscarPorId` lança `NaoEncontradoException` em vez de retornar `null` — essa checagem nunca dispara. A exceção acaba caindo no `catch (Exception e)` genérico, então o resultado real observado é **500** (`{ "message": "Erro no processamento do servidor", "dado": { /* exceção serializada */ } }`), não 404.
 
 ## Observações
 
-- `criar` é o único método deste controller sem envelope `AuthResponse` — os demais (`listar`, `buscar`, `atualizar`, `remover`) usam.
 - `listar`/`buscar` retornam `DisciplinaDTO` (enxuto); `criar`/`atualizar` retornam a entidade completa. Não assuma o mesmo shape entre operações.

@@ -21,6 +21,8 @@ public class AlunoMapper {
             .distinct()
             .toList();
 
+        String usuarioLogin = entity.getUsuario() != null ? entity.getUsuario().getLogin() : null;
+        String usuarioID = entity.getUsuario() != null ? String.valueOf(entity.getUsuario().getId()) : null;
         AlunoDTO dto = new AlunoDTO(
             entity.getId(),
             entity.getNome(),
@@ -33,7 +35,10 @@ public class AlunoMapper {
             entity.getEmail(),
             entity.getCondicaoEspecial(),
             entity.getAlergia(),
-            cursos
+            cursos,
+            entity.getEndereco(),
+            usuarioLogin,
+            usuarioID != null ? Long.parseLong(usuarioID) : 0L
         );
         return dto;
     }

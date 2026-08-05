@@ -1,7 +1,5 @@
 package com.FVSS.numisis.controller;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.FVSS.numisis.domain.model.Usuario;
+import com.FVSS.numisis.exception.exceptions.RegraNegocioException;
+import com.FVSS.numisis.response.AuthResponse;
 import com.FVSS.numisis.service.UsuarioService;
 
 import jakarta.validation.Valid;
@@ -29,54 +29,70 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<Usuario> criar(@Valid @RequestBody Usuario usuario) {
+    public ResponseEntity<AuthResponse<?>> criar(@Valid @RequestBody Usuario usuario) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.salvar(usuario));
+            var usuarioSalvo = usuarioService.salvar(usuario);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new AuthResponse<>("Usuário salvo com sucesso!", usuarioSalvo));
+        } catch (RegraNegocioException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new AuthResponse<>(e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> listar() {
+    public ResponseEntity<AuthResponse<?>> listar() {
         try {
-            return ResponseEntity.ok(usuarioService.listarTodos());
+            return ResponseEntity.ok(new AuthResponse<>("Usuários retornados com sucesso!", usuarioService.listarTodos()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> buscar(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id) {
         try {
-            return usuarioService.buscarPorId(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+           var usuario = usuarioService.buscarPorId(id);
+           return ResponseEntity.status(HttpStatus.OK)
+                   .body(new AuthResponse<>("Usuário encontrado com sucesso!", usuario));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> atualizar(@PathVariable Long id, @Valid @RequestBody Usuario usuario) {
+    public ResponseEntity<AuthResponse<?>> atualizar(@PathVariable Long id, @Valid @RequestBody Usuario usuario) {
         try {
             usuario.setId(id);
-            return ResponseEntity.ok(usuarioService.salvar(usuario));
+            var usuarioAtualizado = usuarioService.salvar(usuario);
+            return ResponseEntity.ok(new AuthResponse<>("Usuário atualizado com sucesso!", usuarioAtualizado));
+        } catch (RegraNegocioException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new AuthResponse<>(e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> remover(@PathVariable Long id) {
         try {
             if (usuarioService.buscarPorId(id).isEmpty()) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new AuthResponse<>("Usuário não encontrado com id: " + id));
             }
             usuarioService.deletarPorId(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(new AuthResponse<>("Usuário deletado com sucesso!"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 }

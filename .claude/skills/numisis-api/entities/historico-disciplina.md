@@ -49,6 +49,28 @@ Retorno: `200 OK`
 
 ---
 
+## Listar por aluno
+
+`GET /api/historicos-disciplinas/aluno/{alunoId}`
+
+Query params de paginação: `page`, `size`, `sort`. Filtra por `HistoricoDisciplina.aluno.id` (`findByAlunoId`).
+
+Retorno: `200 OK`
+
+```json
+{
+  "message": "Históricos do aluno retornados com sucesso!",
+  "dado": {
+    "content": [ /* HistoricoDisciplina[] (apenas os do aluno informado) */ ],
+    "page": 0, "size": 20, "totalElements": 3, "totalPages": 1
+  }
+}
+```
+
+Se `alunoId` não existir ou o aluno não tiver históricos, retorna `200 OK` com `content: []` (não há checagem de existência do aluno — mesmo padrão dos demais endpoints de listagem da API, que não validam ids usados como filtro).
+
+---
+
 ## Buscar
 
 `GET /api/historicos-disciplinas/{id}`
@@ -79,7 +101,7 @@ Retorno: `200 OK`, `{ "message": "Histórico atualizado com sucesso!", "dado": {
 
 `DELETE /api/historicos-disciplinas/{id}`
 
-Retorno: `204 No Content` (sem corpo — o controller usa `ResponseEntity.noContent().build()`, ignorando o envelope `AuthResponse` neste caso específico).
+Retorno: `204 No Content`, `{ "message": "Histórico deletado com sucesso!" }`.
 
 ## Observações
 

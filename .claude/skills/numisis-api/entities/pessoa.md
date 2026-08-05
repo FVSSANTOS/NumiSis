@@ -22,8 +22,8 @@ Sem regra específica em `SecurityConfig` para `/api/pessoas/**` → cai em "qua
 | `dataNascimento` | string (`yyyy-MM-dd`) | |
 | `email` | string | |
 | `endereco` | objeto `Endereco` \| `null` | relação `@OneToOne(cascade = ALL)` — se enviado no corpo ao criar Aluno/Professor, é persistido junto |
-| `telefones` | `Telefone[]` | relação `@OneToMany(mappedBy = "pessoa")`, sem cascade — não é persistida automaticamente enviando junto no corpo de Aluno/Professor; cadastre via `/api/telefones` |
-| `usuario` | objeto `Usuario` \| `null` | relação `@OneToOne(cascade = ALL)` — inclui `login`, `senha` (hash) e `role`; ver aviso de segurança no `SKILL.md` |
+| `telefones` | `Telefone[]` | relação `@OneToMany(mappedBy = "pessoa", cascade = ALL, orphanRemoval = true)` — enviar a lista junto no corpo de Aluno/Professor persiste/atualiza/remove os telefones em cascata (remover um item da lista ao editar exclui o telefone) |
+| `usuario` | objeto `Usuario` \| `null` | relação `@OneToOne(cascade = ALL)` — inclui `login`, `senha` (hash) e `role`; ver aviso de segurança no `SKILL.md`. **Um mesmo `Usuario` só pode estar vinculado a uma `Pessoa`** (`usuario_id` é `unique` na tabela `pessoa`) — tentar vincular um usuário já usado por outra pessoa retorna `400` ("Esse usuário já está vinculado a outra pessoa.") em `/api/alunos` e `/api/professores` |
 
 Não há DTO específico para `Pessoa` — os endpoints abaixo retornam a entidade completa (subtipo real, `Aluno` ou `Professor`, com os campos específicos de cada um incluídos).
 
@@ -33,10 +33,10 @@ Não há DTO específico para `Pessoa` — os endpoints abaixo retornam a entida
 
 `GET /api/pessoas`
 
-Retorno: `200 OK`, array simples, **sem paginação e sem envelope**:
+**Sem paginação.** Retorno: `200 OK`
 
 ```json
-[ { "id": 1, "nome": "...", ... }, ... ]
+{ "message": "Pessoas retornadas com sucesso!", "dado": [ { "id": 1, "nome": "...", ... }, ... ] }
 ```
 
 ---
@@ -45,7 +45,7 @@ Retorno: `200 OK`, array simples, **sem paginação e sem envelope**:
 
 `GET /api/pessoas/{id}`
 
-Retorno: `200 OK` com a `Pessoa` (Aluno ou Professor), ou `404 Not Found` (corpo vazio) se não existir.
+Retorno: `200 OK`, `{ "message": "Pessoa encontrada com sucesso!", "dado": { /* Aluno ou Professor */ } }`, ou `404 Not Found`, `{ "message": "Pessoa não encontrada com id: {id}" }` se não existir.
 
 ---
 
@@ -53,7 +53,7 @@ Retorno: `200 OK` com a `Pessoa` (Aluno ou Professor), ou `404 Not Found` (corpo
 
 `DELETE /api/pessoas/{id}`
 
-Retorno: `204 No Content`, ou `404 Not Found` se o id não existir.
+Retorno: `204 No Content`, `{ "message": "Pessoa deletada com sucesso!" }`, ou `404 Not Found`, `{ "message": "Pessoa não encontrada com id: {id}" }` se o id não existir.
 
 ## Observações
 

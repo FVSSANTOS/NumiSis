@@ -25,7 +25,11 @@ Credenciais de login (usado por `Aluno`/`Professor` via relação `usuario`, e p
 
 `GET /api/usuarios`
 
-**Sem paginação, sem envelope.** Retorno: `200 OK`, array de `Usuario` (inclui `senha` com hash).
+**Sem paginação.** Retorno: `200 OK`
+
+```json
+{ "message": "Usuários retornados com sucesso!", "dado": [ /* Usuario[] (inclui senha com hash) */ ] }
+```
 
 ---
 
@@ -33,7 +37,7 @@ Credenciais de login (usado por `Aluno`/`Professor` via relação `usuario`, e p
 
 `GET /api/usuarios/{id}`
 
-**Sem envelope.** Retorno: `200 OK`, ou `404 Not Found` se não existir.
+Retorno: `200 OK`, `{ "message": "Usuário encontrado com sucesso!", "dado": { /* Usuario */ } }`, ou `404 Not Found`, `{ "message": "Usuário não encontrado com id: {id}" }` se não existir.
 
 ---
 
@@ -45,7 +49,9 @@ Body: `{ "login": string, "senha": string (texto puro), "role": "ALUNO" | "PROFE
 
 A senha enviada em texto puro é criptografada (BCrypt) pelo `UsuarioService` antes de salvar — diferente do que acontece ao enviar um `usuario` embutido em `POST /api/alunos` ou `/api/professores`, onde **não** há criptografia automática.
 
-**Sem envelope.** Retorno: `201 Created`, corpo inclui `senha` já como hash.
+`login` duplicado → `RegraNegocioException` ("Já existe um usuário com esse login."), retornada como `400 Bad Request`, `{ "message": "Já existe um usuário com esse login." }` (checado via `existsByLogin` antes de salvar, só quando é criação — `usuario.id == null`).
+
+Retorno (sucesso): `201 Created`, `{ "message": "Usuário salvo com sucesso!", "dado": { /* Usuario, senha já como hash */ } }`.
 
 ---
 
@@ -55,7 +61,7 @@ A senha enviada em texto puro é criptografada (BCrypt) pelo `UsuarioService` an
 
 Mesmo body de Criar — **atenção:** todo `PUT` passa novamente pela criptografia (`usuario.setSenha(passwordEncoder.encode(usuario.getSenha()))`). Se o formulário de edição reenviar o hash existente (obtido de um `GET` anterior) sem que o usuário digite uma nova senha, o hash será criptografado novamente e a senha original deixará de funcionar. **O frontend deve sempre enviar uma senha em texto puro neste campo (nunca o hash recebido de um GET), ou omitir a atualização de senha via um fluxo separado.**
 
-**Sem envelope.** Retorno: `200 OK`.
+Retorno: `200 OK`, `{ "message": "Usuário atualizado com sucesso!", "dado": { /* Usuario */ } }`.
 
 ---
 
@@ -63,7 +69,7 @@ Mesmo body de Criar — **atenção:** todo `PUT` passa novamente pela criptogra
 
 `DELETE /api/usuarios/{id}`
 
-**Sem envelope.** Retorno: `204 No Content`, ou `404 Not Found` se não existir.
+Retorno: `204 No Content`, `{ "message": "Usuário deletado com sucesso!" }`, ou `404 Not Found`, `{ "message": "Usuário não encontrado com id: {id}" }` se não existir.
 
 ## Observações
 

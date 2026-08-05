@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.FVSS.numisis.domain.model.Usuario;
+import com.FVSS.numisis.exception.exceptions.RegraNegocioException;
 import com.FVSS.numisis.infrastructure.repository.UsuarioRepository;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,9 @@ public class UsuarioService {
     }
 
     public Usuario salvar(Usuario usuario) {
+        if (usuario.getId() == null && usuarioRepository.existsByLogin(usuario.getLogin())) {
+            throw new RegraNegocioException("Já existe um usuário com esse login.");
+        }
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         return usuarioRepository.save(usuario);
     }

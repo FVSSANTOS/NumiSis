@@ -43,7 +43,7 @@ Retorno: `200 OK`
 
 `GET /api/cursos/{id}`
 
-**Sem envelope.** Retorno: `200 OK` com o `Curso` cru, ou `404 Not Found` se não existir.
+Retorno: `200 OK`, `{ "message": "Curso encontrado com sucesso!", "dado": { /* Curso */ } }`, ou `404 Not Found`, `{ "message": "Curso não encontrado com id: {id}" }` se não existir.
 
 ---
 
@@ -53,7 +53,7 @@ Retorno: `200 OK`
 
 Body: `{ "nome": string, "descricao": string }`.
 
-**Sem envelope.** Retorno: `201 Created` com o `Curso` criado.
+Retorno: `201 Created`, `{ "message": "Curso salvo com sucesso!", "dado": { /* Curso */ } }`.
 
 ---
 
@@ -61,7 +61,7 @@ Body: `{ "nome": string, "descricao": string }`.
 
 `PUT /api/cursos/{id}`
 
-**Sem envelope.** Retorno: `200 OK` com o `Curso` atualizado.
+Retorno: `200 OK`, `{ "message": "Curso atualizado com sucesso!", "dado": { /* Curso */ } }`.
 
 ---
 
@@ -69,9 +69,8 @@ Body: `{ "nome": string, "descricao": string }`.
 
 `DELETE /api/cursos/{id}`
 
-**Sem envelope.** Retorno: `204 No Content`, ou `404 Not Found` se não existir.
+Retorno: `204 No Content`, `{ "message": "Curso deletado com sucesso!" }`, ou `404 Not Found`, `{ "message": "Curso não encontrado com id: {id}" }` se não existir.
 
 ## Observações
 
-- Único método deste controller com envelope `AuthResponse` é `listar`; os demais retornam a entidade crua.
 - `buscar`/`remover` propagam corretamente o 404 (usam `Optional`/checagem antes de agir).

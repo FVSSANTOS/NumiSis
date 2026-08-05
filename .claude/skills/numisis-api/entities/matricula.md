@@ -28,7 +28,11 @@ Vincula um [Aluno](aluno.md) a um [Curso](curso.md).
 
 `GET /api/matriculas`
 
-**Sem paginação, sem envelope.** Retorno: `200 OK`, array de `Matricula`.
+**Sem paginação.** Retorno: `200 OK`
+
+```json
+{ "message": "Matrículas retornadas com sucesso!", "dado": [ /* Matricula[] */ ] }
+```
 
 ---
 
@@ -36,7 +40,7 @@ Vincula um [Aluno](aluno.md) a um [Curso](curso.md).
 
 `GET /api/matriculas/{id}`
 
-**Sem envelope.** Retorno: `200 OK`, ou `404 Not Found` se não existir.
+Retorno: `200 OK`, `{ "message": "Matrícula encontrada com sucesso!", "dado": { /* Matricula */ } }`, ou `404 Not Found`, `{ "message": "Matrícula não encontrada com id: {id}" }` (sem `dado`) se não existir.
 
 ---
 
@@ -44,7 +48,7 @@ Vincula um [Aluno](aluno.md) a um [Curso](curso.md).
 
 `POST /api/matriculas`
 
-**Sem envelope.** Retorno: `201 Created`.
+Retorno: `201 Created`, `{ "message": "Matrícula salva com sucesso!", "dado": { /* Matricula */ } }`.
 
 ---
 
@@ -52,7 +56,7 @@ Vincula um [Aluno](aluno.md) a um [Curso](curso.md).
 
 `PUT /api/matriculas/{id}`
 
-**Sem envelope.** Retorno: `200 OK`.
+Retorno: `200 OK`, `{ "message": "Matrícula atualizada com sucesso!", "dado": { /* Matricula */ } }`.
 
 ---
 
@@ -60,7 +64,7 @@ Vincula um [Aluno](aluno.md) a um [Curso](curso.md).
 
 `DELETE /api/matriculas/{id}`
 
-**Sem envelope.** Retorno: `204 No Content`, ou `404 Not Found` se não existir.
+Retorno: `204 No Content`, `{ "message": "Matrícula deletada com sucesso!" }`, ou `404 Not Found`, `{ "message": "Matrícula não encontrada com id: {id}" }` se não existir.
 
 ## Observações
 

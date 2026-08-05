@@ -28,7 +28,11 @@ Sem validações declaradas.
 
 `GET /api/dados-bancarios`
 
-**Sem paginação, sem envelope.** Retorno: `200 OK`, array de `DadosBancarios`.
+**Sem paginação.** Retorno: `200 OK`
+
+```json
+{ "message": "Dados bancários retornados com sucesso!", "dado": [ /* DadosBancarios[] */ ] }
+```
 
 ---
 
@@ -36,7 +40,7 @@ Sem validações declaradas.
 
 `GET /api/dados-bancarios/{id}`
 
-**Sem envelope.** Retorno: `200 OK`, ou `404 Not Found` se não existir.
+Retorno: `200 OK`, `{ "message": "Dados bancários encontrados com sucesso!", "dado": { /* DadosBancarios */ } }`, ou `404 Not Found`, `{ "message": "Dados bancários não encontrados com id: {id}" }` se não existir.
 
 ---
 
@@ -46,7 +50,7 @@ Sem validações declaradas.
 
 Body: `{ "banco": string, "agencia": string, "conta": string, "pix": string }`.
 
-**Sem envelope.** Retorno: `201 Created`.
+Retorno: `201 Created`, `{ "message": "Dados bancários salvos com sucesso!", "dado": { /* DadosBancarios */ } }`.
 
 ---
 
@@ -54,7 +58,7 @@ Body: `{ "banco": string, "agencia": string, "conta": string, "pix": string }`.
 
 `PUT /api/dados-bancarios/{id}`
 
-**Sem envelope.** Retorno: `200 OK`.
+Retorno: `200 OK`, `{ "message": "Dados bancários atualizados com sucesso!", "dado": { /* DadosBancarios */ } }`.
 
 ---
 
@@ -62,7 +66,7 @@ Body: `{ "banco": string, "agencia": string, "conta": string, "pix": string }`.
 
 `DELETE /api/dados-bancarios/{id}`
 
-**Sem envelope.** Retorno: `204 No Content`, ou `404 Not Found` se não existir.
+Retorno: `204 No Content`, `{ "message": "Dados bancários deletados com sucesso!" }`, ou `404 Not Found`, `{ "message": "Dados bancários não encontrados com id: {id}" }` se não existir.
 
 ## Observações
 

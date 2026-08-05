@@ -3,6 +3,7 @@ package com.FVSS.numisis.dto;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.FVSS.numisis.domain.model.Endereco;
 import com.FVSS.numisis.domain.model.Telefone;
 
 public record AlunoDTO(
@@ -17,5 +18,8 @@ public record AlunoDTO(
      String email,
      String condicaoEspecial,
      String alergia,
-     List<String> cursos
+     List<String> cursos,
+     Endereco endereco,
+     String usuarioLogin,
+     long usuarioID
 ) {}

@@ -33,11 +33,14 @@ public class TurmaController {
     }
 
     @PostMapping
-    public ResponseEntity<Turma> criar(@Valid @RequestBody Turma turma) {
+    public ResponseEntity<AuthResponse<?>> criar(@Valid @RequestBody Turma turma) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(turmaService.salvar(turma));
+            var turmaSalva = turmaService.salvar(turma);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new AuthResponse<>("Turma salva com sucesso!", turmaSalva));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
@@ -48,14 +51,14 @@ public class TurmaController {
             List<Turma> turmas = page.getContent()
                                      .stream()
                                      .toList();
-            
+
             return ResponseEntity.status(HttpStatus.OK).body(new AuthResponse<>(
             "Turmas retornadas com sucesso!",
             new PageResponse<>(
                 turmas,
-                page.getNumber(), 
-                page.getSize(), 
-                page.getTotalElements(), 
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
                 page.getTotalPages())
              ));
         } catch (Exception e) {
@@ -67,36 +70,42 @@ public class TurmaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Turma> buscar(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id) {
         try {
-            return turmaService.buscarPorId(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            var turma = turmaService.buscarPorId(id);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new AuthResponse<>("Turma encontrada com sucesso!", turma));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Turma> atualizar(@PathVariable Long id, @Valid @RequestBody Turma turma) {
+    public ResponseEntity<AuthResponse<?>> atualizar(@PathVariable Long id, @Valid @RequestBody Turma turma) {
         try {
             turma.setId(id);
-            return ResponseEntity.ok(turmaService.salvar(turma));
+            var turmaAtualizada = turmaService.salvar(turma);
+            return ResponseEntity.ok(new AuthResponse<>("Turma atualizada com sucesso!", turmaAtualizada));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> remover(@PathVariable Long id) {
         try {
             if (turmaService.buscarPorId(id).isEmpty()) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new AuthResponse<>("Turma não encontrada com id: " + id));
             }
             turmaService.deletarPorId(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(new AuthResponse<>("Turma deletada com sucesso!"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 }

@@ -1,7 +1,5 @@
 package com.FVSS.numisis.controller;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -17,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.FVSS.numisis.domain.model.Professor;
 import com.FVSS.numisis.dto.PageResponse;
+import com.FVSS.numisis.exception.exceptions.RegraNegocioException;
+import com.FVSS.numisis.mapper.ProfessorMapper;
 import com.FVSS.numisis.response.AuthResponse;
 import com.FVSS.numisis.service.ProfessorService;
 
@@ -37,6 +37,9 @@ public class ProfessorController {
         try {
             var professorSaved = professorService.salvar(professor);
             return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse<>("Professor salvo com sucesso!", professorSaved));
+        } catch (RegraNegocioException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(new AuthResponse<>(e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body(new AuthResponse<>("Erro no processamento do servidor", e));
@@ -47,14 +50,15 @@ public class ProfessorController {
     public ResponseEntity<AuthResponse<?>> listar(Pageable pageable) {
         try {
             Page<Professor> page = professorService.listarTodos(pageable);
-            List<Professor> professores = page.getContent()
+            var professoresDTO = page.getContent()
                                      .stream()
+                                     .map(ProfessorMapper::toDTO)
                                      .toList();
-            
+
             return ResponseEntity.status(HttpStatus.OK).body(new AuthResponse<>(
-            "Históricos retornados com sucesso!",
+            "Professores retornados com sucesso!",
             new PageResponse<>(
-                professores,
+                professoresDTO,
                 page.getNumber(), 
                 page.getSize(), 
                 page.getTotalElements(), 
@@ -72,9 +76,10 @@ public class ProfessorController {
     @GetMapping("/{id}")
     public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id) {
         try {
-            var professor =  professorService.buscarPorId(id);
+            var professor = professorService.buscarPorId(id);
+            var professorDTO = ProfessorMapper.toDTO(professor);
             return ResponseEntity.status(HttpStatus.OK)
-            .body(new AuthResponse<>("Professor encontrado com sucesso", professor));
+            .body(new AuthResponse<>("Professor encontrado com sucesso", professorDTO));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body(new AuthResponse<>("Erro no processamento do servidor", e));
@@ -82,25 +87,33 @@ public class ProfessorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Professor> atualizar(@PathVariable Long id, @Valid @RequestBody Professor professor) {
+    public ResponseEntity<AuthResponse<?>> atualizar(@PathVariable Long id, @Valid @RequestBody Professor professor) {
         try {
             professor.setId(id);
-            return ResponseEntity.ok(professorService.salvar(professor));
+            var professorAtualizado = professorService.salvar(professor);
+            return ResponseEntity.ok(new AuthResponse<>("Professor atualizado com sucesso!", professorAtualizado));
+        } catch (RegraNegocioException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(new AuthResponse<>(e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> remover(@PathVariable Long id) {
         try {
             if (professorService.buscarPorId(id) == null) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                     .body(new AuthResponse<>("Professor não encontrado com id: " + id));
             }
             professorService.deletarPorId(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                                 .body(new AuthResponse<>("Professor deletado com sucesso!"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 }

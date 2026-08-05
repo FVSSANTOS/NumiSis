@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<AuthResponse<?>> handleDataIntegrity(DataIntegrityViolationException ex) {
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-            .body(new AuthResponse<>("CPF já cadastrado."));
-}
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new AuthResponse<>("Já existe um registro com esses dados. Verifique os campos únicos (ex.: CPF, login)."));
+    }
 }

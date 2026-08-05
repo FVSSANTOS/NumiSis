@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.FVSS.numisis.domain.model.Aluno;
 import com.FVSS.numisis.dto.PageResponse;
+import com.FVSS.numisis.exception.exceptions.RegraNegocioException;
 import com.FVSS.numisis.mapper.AlunoMapper;
 import com.FVSS.numisis.response.AuthResponse;
 import com.FVSS.numisis.service.AlunoService;
@@ -40,6 +41,9 @@ public class AlunoController {
         try {
             var alunoSaved = alunoService.salvar(aluno);
             return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse<>("Aluno salvo com sucesso!", alunoSaved));
+        } catch (RegraNegocioException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(new AuthResponse<>(e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body(
@@ -99,6 +103,9 @@ public class AlunoController {
             var alunoAtualizado = alunoService.atualizar(aluno);
             return ResponseEntity.status(HttpStatus.OK)
                                  .body(new AuthResponse<>("Aluno atualizado com sucesso!", alunoAtualizado));
+        } catch (RegraNegocioException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(new AuthResponse<>(e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body(

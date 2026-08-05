@@ -1,6 +1,7 @@
 package com.FVSS.numisis.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,11 +34,14 @@ public class CursoController {
     }
 
     @PostMapping
-    public ResponseEntity<Curso> criar(@Valid @RequestBody Curso curso) {
+    public ResponseEntity<AuthResponse<?>> criar(@Valid @RequestBody Curso curso) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(cursoService.salvar(curso));
+            var cursoSalvo = cursoService.salvar(curso);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new AuthResponse<>("Curso salvo com sucesso!", cursoSalvo));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
@@ -48,14 +52,14 @@ public class CursoController {
             List<Curso> cursos = page.getContent()
                                      .stream()
                                      .toList();
-            
+
             return ResponseEntity.status(HttpStatus.OK).body(new AuthResponse<>(
             "Cursos retornados com sucesso!",
             new PageResponse<>(
                 cursos,
-                page.getNumber(), 
-                page.getSize(), 
-                page.getTotalElements(), 
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
                 page.getTotalPages())
              ));
         } catch (Exception e) {
@@ -68,36 +72,45 @@ public class CursoController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Curso> buscar(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id) {
         try {
-            return cursoService.buscarPorId(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            Optional<Curso> cursoEncontrado = cursoService.buscarPorId(id);
+            if (cursoEncontrado.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new AuthResponse<>("Curso não encontrado com id: " + id));
+            }
+            return ResponseEntity.ok(new AuthResponse<>("Curso encontrado com sucesso!", cursoEncontrado.get()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Curso> atualizar(@PathVariable Long id, @Valid @RequestBody Curso curso) {
+    public ResponseEntity<AuthResponse<?>> atualizar(@PathVariable Long id, @Valid @RequestBody Curso curso) {
         try {
             curso.setId(id);
-            return ResponseEntity.ok(cursoService.salvar(curso));
+            var cursoAtualizado = cursoService.salvar(curso);
+            return ResponseEntity.ok(new AuthResponse<>("Curso atualizado com sucesso!", cursoAtualizado));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> remover(@PathVariable Long id) {
         try {
             if (cursoService.buscarPorId(id).isEmpty()) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new AuthResponse<>("Curso não encontrado com id: " + id));
             }
             cursoService.deletarPorId(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(new AuthResponse<>("Curso deletado com sucesso!"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 }

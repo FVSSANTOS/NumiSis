@@ -25,7 +25,11 @@ Sem validações declaradas.
 
 `GET /api/telefones`
 
-**Sem paginação, sem envelope.** Retorno: `200 OK`, array de `Telefone`.
+**Sem paginação.** Retorno: `200 OK`
+
+```json
+{ "message": "Telefones retornados com sucesso!", "dado": [ /* Telefone[] */ ] }
+```
 
 ---
 
@@ -33,7 +37,7 @@ Sem validações declaradas.
 
 `GET /api/telefones/{id}`
 
-**Sem envelope.** Retorno: `200 OK`, ou `404 Not Found` se não existir.
+Retorno: `200 OK`, `{ "message": "Telefone encontrado com sucesso!", "dado": { /* Telefone */ } }`, ou `404 Not Found`, `{ "message": "Telefone não encontrado com id: {id}" }` se não existir.
 
 ---
 
@@ -43,7 +47,7 @@ Sem validações declaradas.
 
 Body: `{ "numero": string, "tipo": string, "pessoa": { "id": number } }` — para vincular a um aluno/professor existente, envie `pessoa.id`.
 
-**Sem envelope.** Retorno: `201 Created`.
+Retorno: `201 Created`, `{ "message": "Telefone salvo com sucesso!", "dado": { /* Telefone */ } }`.
 
 ---
 
@@ -51,7 +55,7 @@ Body: `{ "numero": string, "tipo": string, "pessoa": { "id": number } }` — par
 
 `PUT /api/telefones/{id}`
 
-**Sem envelope.** Retorno: `200 OK`.
+Retorno: `200 OK`, `{ "message": "Telefone atualizado com sucesso!", "dado": { /* Telefone */ } }`.
 
 ---
 
@@ -59,8 +63,8 @@ Body: `{ "numero": string, "tipo": string, "pessoa": { "id": number } }` — par
 
 `DELETE /api/telefones/{id}`
 
-**Sem envelope.** Retorno: `204 No Content`, ou `404 Not Found` se não existir.
+Retorno: `204 No Content`, `{ "message": "Telefone deletado com sucesso!" }`, ou `404 Not Found`, `{ "message": "Telefone não encontrado com id: {id}" }` se não existir.
 
 ## Observações
 
-- A relação `Pessoa.telefones` (`@OneToMany`, sem cascade) não é populada automaticamente ao criar um Aluno/Professor — cadastre telefones aqui, referenciando `pessoa.id`, depois de a pessoa já existir.
+- A relação `Pessoa.telefones` (`@OneToMany(cascade = ALL, orphanRemoval = true)`) também pode ser gerenciada embutindo a lista `telefones` no corpo de `POST`/`PUT /api/alunos` e `/api/professores` — nesse caso os telefones são criados/atualizados/removidos em cascata junto com a pessoa (remover um item da lista ao editar exclui o telefone). Este endpoint (`/api/telefones`) continua útil para CRUD avulso ou quando a pessoa já existe e você só quer adicionar/editar um telefone sem reenviar o objeto Aluno/Professor inteiro.

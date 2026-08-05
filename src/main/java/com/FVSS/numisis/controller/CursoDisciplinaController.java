@@ -1,7 +1,5 @@
 package com.FVSS.numisis.controller;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.FVSS.numisis.domain.model.CursoDisciplina;
+import com.FVSS.numisis.response.AuthResponse;
 import com.FVSS.numisis.service.CursoDisciplinaService;
 
 import jakarta.validation.Valid;
@@ -29,55 +28,66 @@ public class CursoDisciplinaController {
     }
 
     @PostMapping
-    public ResponseEntity<CursoDisciplina> criar(@Valid @RequestBody CursoDisciplina cursoDisciplina) {
+    public ResponseEntity<AuthResponse<?>> criar(@Valid @RequestBody CursoDisciplina cursoDisciplina) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(cursoDisciplinaService.salvar(cursoDisciplina));
+            var vinculoSalvo = cursoDisciplinaService.salvar(cursoDisciplina);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new AuthResponse<>("Vínculo entre curso e disciplina salvo com sucesso!", vinculoSalvo));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<CursoDisciplina>> listar() {
+    public ResponseEntity<AuthResponse<?>> listar() {
         try {
-            return ResponseEntity.ok(cursoDisciplinaService.listarTodos());
+            return ResponseEntity.ok(new AuthResponse<>(
+                    "Vínculos entre cursos e disciplinas retornados com sucesso!", cursoDisciplinaService.listarTodos()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CursoDisciplina> buscar(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id) {
         try {
-            return cursoDisciplinaService.buscarPorId(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            var disciplina = cursoDisciplinaService.buscarPorId(id);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new AuthResponse<>("Vínculo entre curso e disciplina encontrado com sucesso!", disciplina));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CursoDisciplina> atualizar(@PathVariable Long id,
+    public ResponseEntity<AuthResponse<?>> atualizar(@PathVariable Long id,
             @Valid @RequestBody CursoDisciplina cursoDisciplina) {
         try {
             cursoDisciplina.setId(id);
-            return ResponseEntity.ok(cursoDisciplinaService.salvar(cursoDisciplina));
+            var vinculoAtualizado = cursoDisciplinaService.salvar(cursoDisciplina);
+            return ResponseEntity.ok(new AuthResponse<>("Vínculo entre curso e disciplina atualizado com sucesso!", vinculoAtualizado));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> remover(@PathVariable Long id) {
         try {
             if (cursoDisciplinaService.buscarPorId(id).isEmpty()) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new AuthResponse<>("Vínculo entre curso e disciplina não encontrado com id: " + id));
             }
             cursoDisciplinaService.deletarPorId(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(new AuthResponse<>("Vínculo entre curso e disciplina deletado com sucesso!"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 }

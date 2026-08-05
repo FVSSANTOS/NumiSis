@@ -34,11 +34,14 @@ public class DisciplinaController {
     }
 
     @PostMapping
-    public ResponseEntity<Disciplina> criar(@Valid @RequestBody Disciplina disciplina) {
+    public ResponseEntity<AuthResponse<?>> criar(@Valid @RequestBody Disciplina disciplina) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(disciplinaService.salvar(disciplina));
+            var disciplinaSalva = disciplinaService.salvar(disciplina);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new AuthResponse<>("Disciplina salva com sucesso!", disciplinaSalva));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
@@ -104,10 +107,12 @@ public class DisciplinaController {
     public ResponseEntity<AuthResponse<?>> remover(@PathVariable Long id) {
         try {
             if (disciplinaService.buscarPorId(id) == null) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new AuthResponse<>("Disciplina não encontrada com id: " + id));
             }
             disciplinaService.deletarPorId(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(new AuthResponse<>("Disciplina deletada com sucesso!"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthResponse<>("Erro no processamento do servidor", e));
         }

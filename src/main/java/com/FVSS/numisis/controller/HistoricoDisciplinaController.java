@@ -68,6 +68,31 @@ public class HistoricoDisciplinaController {
         }
     }
 
+    @GetMapping("/aluno/{alunoId}")
+    public ResponseEntity<AuthResponse<?>> listarPorAluno(@PathVariable Long alunoId, Pageable pageable) {
+        try {
+            Page<HistoricoDisciplina> page = historicoDisciplinaService.listarPorAluno(alunoId, pageable);
+            List<HistoricoDisciplina> historicos = page.getContent()
+                                     .stream()
+                                     .toList();
+
+            return ResponseEntity.status(HttpStatus.OK).body(new AuthResponse<>(
+            "Históricos do aluno retornados com sucesso!",
+            new PageResponse<>(
+                historicos,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages())
+             ));
+        } catch (Exception e) {
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(new AuthResponse<>(
+                                     "Erro no processamento do servidor", e)
+                                  );
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id) {
         try {
@@ -96,7 +121,8 @@ public class HistoricoDisciplinaController {
     public ResponseEntity<AuthResponse<?>> remover(@PathVariable Long id) {
         try {
             historicoDisciplinaService.deletarPorId(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(new AuthResponse<>("Histórico deletado com sucesso!"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthResponse<>("Erro no processamento do servidor", e));
         }

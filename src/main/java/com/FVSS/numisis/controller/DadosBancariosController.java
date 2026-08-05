@@ -1,7 +1,5 @@
 package com.FVSS.numisis.controller;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.FVSS.numisis.domain.model.DadosBancarios;
+import com.FVSS.numisis.response.AuthResponse;
 import com.FVSS.numisis.service.DadosBancariosService;
 
 import jakarta.validation.Valid;
@@ -29,55 +28,65 @@ public class DadosBancariosController {
     }
 
     @PostMapping
-    public ResponseEntity<DadosBancarios> criar(@Valid @RequestBody DadosBancarios dadosBancarios) {
+    public ResponseEntity<AuthResponse<?>> criar(@Valid @RequestBody DadosBancarios dadosBancarios) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(dadosBancariosService.salvar(dadosBancarios));
+            var dadosSalvos = dadosBancariosService.salvar(dadosBancarios);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new AuthResponse<>("Dados bancários salvos com sucesso!", dadosSalvos));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<DadosBancarios>> listar() {
+    public ResponseEntity<AuthResponse<?>> listar() {
         try {
-            return ResponseEntity.ok(dadosBancariosService.listarTodos());
+            return ResponseEntity.ok(new AuthResponse<>("Dados bancários retornados com sucesso!", dadosBancariosService.listarTodos()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DadosBancarios> buscar(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id) {
         try {
-            return dadosBancariosService.buscarPorId(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            var dados = dadosBancariosService.buscarPorId(id);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new AuthResponse<>("Dados bancários encontrados com sucesso!", dados));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DadosBancarios> atualizar(@PathVariable Long id,
+    public ResponseEntity<AuthResponse<?>> atualizar(@PathVariable Long id,
             @Valid @RequestBody DadosBancarios dadosBancarios) {
         try {
             dadosBancarios.setId(id);
-            return ResponseEntity.ok(dadosBancariosService.salvar(dadosBancarios));
+            var dadosAtualizados = dadosBancariosService.salvar(dadosBancarios);
+            return ResponseEntity.ok(new AuthResponse<>("Dados bancários atualizados com sucesso!", dadosAtualizados));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> remover(@PathVariable Long id) {
         try {
             if (dadosBancariosService.buscarPorId(id).isEmpty()) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new AuthResponse<>("Dados bancários não encontrados com id: " + id));
             }
             dadosBancariosService.deletarPorId(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(new AuthResponse<>("Dados bancários deletados com sucesso!"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse<>("Erro no processamento do servidor", e));
         }
     }
 }

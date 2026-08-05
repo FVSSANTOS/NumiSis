@@ -28,7 +28,11 @@ Sem validações declaradas (`@NotBlank`/etc.) em nenhum campo.
 
 `GET /api/enderecos`
 
-**Sem paginação, sem envelope.** Retorno: `200 OK`, array de `Endereco`.
+**Sem paginação.** Retorno: `200 OK`
+
+```json
+{ "message": "Endereços retornados com sucesso!", "dado": [ /* Endereco[] */ ] }
+```
 
 ---
 
@@ -36,7 +40,7 @@ Sem validações declaradas (`@NotBlank`/etc.) em nenhum campo.
 
 `GET /api/enderecos/{id}`
 
-**Sem envelope.** Retorno: `200 OK`, ou `404 Not Found` se não existir.
+Retorno: `200 OK`, `{ "message": "Endereço encontrado com sucesso!", "dado": { /* Endereco */ } }`, ou `404 Not Found`, `{ "message": "Endereço não encontrado com id: {id}" }` se não existir.
 
 ---
 
@@ -46,7 +50,7 @@ Sem validações declaradas (`@NotBlank`/etc.) em nenhum campo.
 
 Body: objeto `Endereco` (sem `id`).
 
-**Sem envelope.** Retorno: `201 Created`.
+Retorno: `201 Created`, `{ "message": "Endereço salvo com sucesso!", "dado": { /* Endereco */ } }`.
 
 ---
 
@@ -54,7 +58,7 @@ Body: objeto `Endereco` (sem `id`).
 
 `PUT /api/enderecos/{id}`
 
-**Sem envelope.** Retorno: `200 OK`.
+Retorno: `200 OK`, `{ "message": "Endereço atualizado com sucesso!", "dado": { /* Endereco */ } }`.
 
 ---
 
@@ -62,7 +66,7 @@ Body: objeto `Endereco` (sem `id`).
 
 `DELETE /api/enderecos/{id}`
 
-**Sem envelope.** Retorno: `204 No Content`, ou `404 Not Found` se não existir.
+Retorno: `204 No Content`, `{ "message": "Endereço deletado com sucesso!" }`, ou `404 Not Found`, `{ "message": "Endereço não encontrado com id: {id}" }` se não existir.
 
 ## Observações
 

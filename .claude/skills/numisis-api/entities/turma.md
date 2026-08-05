@@ -10,7 +10,7 @@
 
 ## Entidade Turma (usada em todos os endpoints — não há DTO em uso)
 
-> Existem `TurmaDTO` e `TurmaMapper` no projeto, mas **nenhum método de `TurmaController` os utiliza** — todos retornam a entidade crua.
+> Existem `TurmaDTO` e `TurmaMapper` no projeto, mas **nenhum método de `TurmaController` os utiliza** — todos retornam a entidade crua dentro do envelope `AuthResponse`.
 
 | Campo | Tipo | Descrição |
 |---|---|---|
@@ -54,7 +54,7 @@ Retorno: `200 OK`
 
 `GET /api/turmas/{id}`
 
-**Sem envelope.** Retorno: `200 OK` com a `Turma` crua, ou `404 Not Found` (corpo vazio) se não existir.
+Retorno: `200 OK`, `{ "message": "Turma encontrada com sucesso!", "dado": { /* Turma */ } }`, ou `404 Not Found`, `{ "message": "Turma não encontrada com id: {id}" }` se não existir.
 
 ---
 
@@ -62,7 +62,7 @@ Retorno: `200 OK`
 
 `POST /api/turmas`
 
-**Sem envelope.** Retorno: `201 Created` com a `Turma` criada.
+Retorno: `201 Created`, `{ "message": "Turma salva com sucesso!", "dado": { /* Turma */ } }`.
 
 ---
 
@@ -70,7 +70,7 @@ Retorno: `200 OK`
 
 `PUT /api/turmas/{id}`
 
-**Sem envelope.** Retorno: `200 OK` com a `Turma` atualizada.
+Retorno: `200 OK`, `{ "message": "Turma atualizada com sucesso!", "dado": { /* Turma */ } }`.
 
 ---
 
@@ -78,9 +78,8 @@ Retorno: `200 OK`
 
 `DELETE /api/turmas/{id}`
 
-**Sem envelope.** Retorno: `204 No Content`, ou `404 Not Found` se o id não existir.
+Retorno: `204 No Content`, `{ "message": "Turma deletada com sucesso!" }`, ou `404 Not Found`, `{ "message": "Turma não encontrada com id: {id}" }` se o id não existir.
 
 ## Observações
 
-- Único método deste controller com envelope `AuthResponse` é `listar`; os demais retornam a entidade crua diretamente.
 - `buscar`/`remover` propagam corretamente o 404 quando o id não existe (usam `Optional`/checagem antes de agir, sem `catch` genérico mascarando o erro).
