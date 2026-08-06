@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -54,6 +55,11 @@ public class HistoricoDisciplina {
 	private StatusHistorico situacao;
 
 	public HistoricoDisciplina() {
+	}
+
+	@Transient
+	public String getDisciplina() {
+		return turma != null && turma.getDisciplina() != null ? turma.getDisciplina().getNome() : null;
 	}
 
 }

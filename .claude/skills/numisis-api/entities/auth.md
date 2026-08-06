@@ -8,6 +8,8 @@
 
 Rota pública (`.requestMatchers("/api/auth/**").permitAll()`), não exige token.
 
+⚠️ **Nunca envie um header `Authorization: Bearer <token>` leftover/expirado em `POST /api/auth/login`** (ex.: um interceptor global de HTTP client que sempre anexa o último token salvo, mesmo na própria chamada de login). O `JwtAuthenticationFilter` roda em **toda** requisição, inclusive nas públicas — se vier um `Authorization` header, ele tenta validar aquele token *antes* de o request chegar no controller de login, independente do que estiver no corpo (`login`/`senha`). Se o token referenciar um usuário que não existe mais (renomeado/excluído) ou estiver corrompido, o filtro captura o erro e apenas segue sem autenticar (não derruba a requisição) — mas o efeito colateral é que, se você estiver testando erros de login, um token velho no header pode mascarar o que está de fato acontecendo. Para a chamada de login, não envie `Authorization` (ou garanta que o client limpa esse header antes de logar).
+
 ---
 
 ## Login
@@ -44,7 +46,7 @@ Rota pública (`.requestMatchers("/api/auth/**").permitAll()`), não exige token
 
 ### Erros
 
-- Credenciais inválidas: `AuthenticationManager.authenticate` lança exceção não tratada pelo `GlobalExceptionHandler` — cai no tratamento padrão do Spring Security, tipicamente `401 Unauthorized` (via `AuthenticationEntryPoint` configurado em `JwtAuthenticationEntryPoint`), corpo fora do padrão `AuthResponse`.
+- Credenciais inválidas (login não encontrado ou senha errada): `AuthenticationController.login` tem `try/catch` em volta de `authenticationManager.authenticate(...)`, então retorna `400 Bad Request`, `{ "message": "Erro ao realizar login: <mensagem da exceção>", "dado": null }` — dentro do formato `AuthResponse`, diferente do resto da API que costuma usar 401/404 para esse tipo de erro.
 - `login`/`senha` em branco: `400 Bad Request` no formato padrão do Spring (`@Valid` sem handler customizado — ver seção de erros em `SKILL.md`), não no formato `AuthResponse`.
 
 ## Observações

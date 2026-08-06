@@ -26,6 +26,8 @@
 
 ⚠️ **Importante para o frontend:** como `disciplina` e `professor` são `@JsonIgnore`, uma `Turma` retornada por qualquer endpoint deste controller **não informa a qual disciplina ou professor pertence**. Não há campo `disciplinaId`/`professorId` disponível na resposta (o `TurmaDTO` que teria esses campos não é usado). Se a tela precisar exibir disciplina/professor de uma turma, será necessário buscar essa relação por outro caminho (ex.: listar turmas a partir de `GET /api/disciplinas/{id}` — que também não expõe isso hoje — ou solicitar ajuste no backend).
 
+> Caso específico já resolvido: se o que você precisa é o **nome da disciplina a partir de um histórico** (`HistoricoDisciplina` → `Turma` → `Disciplina`), não é preciso desfazer esses `@JsonIgnore` — `HistoricoDisciplina` expõe um campo derivado `disciplina` (string) pronto pra isso. Ver [historico-disciplina.md](historico-disciplina.md).
+
 Ao **enviar** (`POST`/`PUT`) uma Turma, `disciplina` e `professor` ainda podem ser preenchidos no corpo da requisição (o `@JsonIgnore` do Jackson, por padrão, também ignora na desserialização, então o valor enviado é **ignorado ao salvar** — confirme no backend antes de depender disso; o vínculo provavelmente precisa ser feito por outro meio, como `curso-disciplina`, ou o `@JsonIgnore` precisa ser trocado por `@JsonIgnoreProperties` no backend).
 
 ---

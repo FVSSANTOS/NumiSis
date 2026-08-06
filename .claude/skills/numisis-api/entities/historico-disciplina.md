@@ -24,8 +24,9 @@ Todos os métodos usam o envelope `AuthResponse<T>`.
 | `situacao` | `"APROVADO" \| "REPROVADO" \| "EM_ANDAMENTO"` | enum `StatusHistorico` |
 | `aluno` | — | **`@JsonIgnore` — nunca aparece na resposta JSON** |
 | `turma` | — | **`@JsonIgnore` — nunca aparece na resposta JSON** |
+| `disciplina` | string \| `null` | campo derivado (getter `@Transient`, não é coluna no banco) — nome da disciplina da turma, resolvido via `turma.disciplina.nome`. `null` se o histórico não tiver `turma` ou a turma não tiver `disciplina` vinculada. Existe justamente para contornar os dois `@JsonIgnore` acima (`HistoricoDisciplina.turma` e `Turma.disciplina`), que impediam chegar no nome da disciplina a partir do histórico |
 
-⚠️ Igual a `Matricula`/`CursoDisciplina`: para criar, envie `{ "aluno": { "id": ... }, "turma": { "id": ... }, "nota": ..., "faltas": ..., "ano": ..., "semestre": ..., "situacao": "..." }`, mas a resposta não devolve esses vínculos.
+⚠️ Igual a `Matricula`/`CursoDisciplina`: para criar, envie `{ "aluno": { "id": ... }, "turma": { "id": ... }, "nota": ..., "faltas": ..., "ano": ..., "semestre": ..., "situacao": "..." }`, mas a resposta não devolve esses vínculos (exceto o nome da disciplina, via `disciplina`, conforme acima).
 
 ---
 

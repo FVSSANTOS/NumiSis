@@ -31,18 +31,24 @@ public class AuthenticationController {
 
 	@PostMapping("/login")
 	public ResponseEntity<AuthResponse<JwtResponse>> login(@Valid @RequestBody LoginRequest request) {
-		Authentication authentication = authenticationManager.authenticate(
+		System.out.println("Login request received: " + request.login());
+		try{
+			Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(request.login(), request.senha()));
 
-		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-		String token = jwtService.generateToken(userDetails);
+			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+			String token = jwtService.generateToken(userDetails);
 
-		JwtResponse jwtResponse = new JwtResponse(
-				token,
-				userDetails.getUsuario().getId(),
-				userDetails.getUsername(),
-				userDetails.getUsuario().getRole());
+			JwtResponse jwtResponse = new JwtResponse(
+					token,
+					userDetails.getUsuario().getId(),
+					userDetails.getUsername(),
+					userDetails.getUsuario().getRole());
 
-		return ResponseEntity.ok(new AuthResponse<>("Login realizado com sucesso", jwtResponse));
+			return ResponseEntity.ok(new AuthResponse<>("Login realizado com sucesso", jwtResponse));
+		}catch(Exception e){
+			return ResponseEntity.badRequest().body(new AuthResponse<>("Erro ao realizar login: " + e.getMessage(), null));
+		}	
+		
 	}
 }
