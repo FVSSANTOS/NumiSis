@@ -15,7 +15,8 @@
 | `id` | number | |
 | `nome` | string | |
 | `descricao` | string | |
-| `cursoDisciplinas` | `CursoDisciplina[]` | vínculos com disciplinas — ver [curso-disciplina.md](curso-disciplina.md). Como `CursoDisciplina.curso` e `.disciplina` são `@JsonIgnore`, cada item desta lista aparece na prática como `{ "id": number }` apenas |
+
+Não existe conceito de "grade curricular" (quais disciplinas pertencem a um curso) na API — foi removido de propósito (havia uma entidade `CursoDisciplina`/endpoint `/api/cursos-disciplinas`, descontinuados). Um `Curso` é só `id`/`nome`/`descricao`; ver "Observações" abaixo para como aluno, curso e disciplina se relacionam sem esse conceito.
 
 ---
 
@@ -74,3 +75,4 @@ Retorno: `204 No Content`, `{ "message": "Curso deletado com sucesso!" }`, ou `4
 ## Observações
 
 - `buscar`/`remover` propagam corretamente o 404 (usam `Optional`/checagem antes de agir).
+- **Como aluno, curso e disciplina se relacionam** (sem grade curricular): `Matricula` liga o aluno ao curso (`Aluno --[Matricula]--> Curso`, ver [matricula.md](matricula.md)) — isso é só a inscrição do aluno no programa. Já quais disciplinas o aluno está cursando é outra coisa, completamente independente do curso: `Aluno --[HistoricoDisciplina]--> Turma --> Disciplina` (ver [historico-disciplina.md](historico-disciplina.md) e [turma.md](turma.md)). Uma `Turma` pode ser criada para qualquer `Disciplina`, sem precisar de nenhum vínculo prévio com o `Curso` do aluno — e um aluno pode ter múltiplos `HistoricoDisciplina` para a mesma `Disciplina` (via `Turma`s diferentes, em anos/semestres diferentes), o que cobre naturalmente o caso de repetência/reoferta.

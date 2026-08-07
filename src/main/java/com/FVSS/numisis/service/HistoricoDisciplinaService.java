@@ -31,6 +31,10 @@ public class HistoricoDisciplinaService {
         return historicoDisciplinaRepository.findByAlunoId(alunoId, pageable);
     }
 
+    public Page<HistoricoDisciplina> listarPorTurma(Long turmaId, Pageable pageable) {
+        return historicoDisciplinaRepository.findByTurmaId(turmaId, pageable);
+    }
+
     public Optional<HistoricoDisciplina> buscarPorId(Long id) {
         return historicoDisciplinaRepository.findById(id);
     }

@@ -9,7 +9,7 @@ public class ProfessorMapper {
         if (entity == null) return null;
 
         String usuarioLogin = entity.getUsuario() != null ? entity.getUsuario().getLogin() : null;
-
+        long usuarioID = entity.getUsuario() != null ? entity.getUsuario().getId() : null;
         ProfessorDTO dto = new ProfessorDTO(
             entity.getId(),
             entity.getNome(),
@@ -22,7 +22,9 @@ public class ProfessorMapper {
             entity.getTelefones(),
             entity.getDadosBancarios(),
             entity.getTurmas(),
-            usuarioLogin);
+            usuarioLogin,
+            usuarioID
+        );
         return dto;
     }
 }

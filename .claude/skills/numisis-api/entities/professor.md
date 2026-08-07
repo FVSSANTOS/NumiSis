@@ -1,8 +1,6 @@
 # Professor
 
-Estende [Pessoa](pessoa.md) (campos `id`, `nome`, `cpf`, `idade`, `dataCadastro`, `dataNascimento`, `email`, `endereco`, `telefones`, `usuario`).
-
-> A classe `Professor` redeclara o campo `usuario` (mesma coluna `usuario_id`, mas sem `cascade`) — na prática funciona como o `usuario` de `Pessoa`, só não é salvo em cascata ao salvar o professor.
+Estende [Pessoa](pessoa.md) (campos `id`, `nome`, `cpf`, `idade`, `dataCadastro`, `dataNascimento`, `email`, `endereco`, `telefones`, `usuario`) — `usuario` é 100% herdado de `Pessoa` (`cascade = ALL`, mesmo padrão de [Aluno](aluno.md)); `Professor` não redeclara mais esse campo.
 
 ## Endpoint Base
 
@@ -51,7 +49,7 @@ Retorno: `200 OK`
 | `endereco` | objeto `Endereco` \| `null` | ver [endereco.md](endereco.md) |
 | `telefones` | `Telefone[]` | ver [telefone.md](telefone.md) |
 | `dadosBancarios` | objeto `DadosBancarios` \| `null` | ver [dados-bancarios.md](dados-bancarios.md) |
-| `turmas` | `Turma[]` | turmas lecionadas pelo professor — ver [turma.md](turma.md) (lembrando que cada `Turma` tem `disciplina`/`professor` ocultos por `@JsonIgnore`) |
+| `turmas` | `Turma[]` | turmas lecionadas pelo professor — ver [turma.md](turma.md) (lembrando que cada `Turma` tem `disciplina`/`professor` write-only, ocultos na resposta) |
 | `usuarioLogin` | string \| `null` | apenas o `login` do `Usuario` vinculado — a senha (hash) **não** é exposta aqui |
 
 Não inclui `dataCadastro` nem o objeto `Usuario` completo (só `usuarioLogin`).
@@ -80,13 +78,23 @@ Body: entidade `Professor` completa.
 |---|---|---|---|
 | `nome`, `cpf`, `idade`, `dataNascimento`, `dataCadastro`, `email` | — | não (sem validações declaradas na entidade) | herdados de Pessoa |
 | `endereco` | objeto `Endereco` | não | cascata via Pessoa |
-| `usuario` | objeto `Usuario` | não | **não** é salvo em cascata (ver nota acima) — cadastre o usuário separadamente em `/api/usuarios` e referencie pelo `id`, ou espere que o vínculo não persista. Um mesmo `Usuario` não pode ficar vinculado a mais de uma pessoa (`usuario_id` é `unique` na tabela `pessoa`, validado também em código) |
+| `usuario` | objeto `Usuario` (`login`, `senha` em texto puro, `role`) | não | persistido em cascata (`cascade = ALL`, herdado de Pessoa). `senha` passa pelo mesmo tratamento de [Aluno](aluno.md) — ver tabela abaixo. Um mesmo `Usuario` não pode ficar vinculado a mais de uma pessoa (`usuario_id` é `unique` na tabela `pessoa`, validado também em código) |
 | `cargaHoraria` | string | não | |
 | `dadosBancarios` | objeto `DadosBancarios` | não | persistido em cascata se enviado |
 
 Não há validação de CPF duplicado no `ProfessorService` (diferente de Aluno). Há, porém, validação de `usuario` (`ProfessorService.salvar`, usado tanto em `criar` quanto em `atualizar`), retornando `400 Bad Request` via `catch (RegraNegocioException e)` específico no controller:
 - `login` já existente e `usuario.id` nulo (usuário novo) → "Já existe um usuário com esse login."
 - `usuario.id` preenchido referenciando um usuário **já vinculado a outra pessoa** → "Esse usuário já está vinculado a outra pessoa."
+
+### Regra de senha do `usuario` embutido (`ProfessorService.tratarSenhaUsuario`, mesma lógica de [Aluno](aluno.md))
+
+| Situação | Comportamento |
+|---|---|
+| `usuario.id` nulo (usuário novo) | `senha` enviada (texto puro) é criptografada com BCrypt |
+| `usuario.id` preenchido **com** `senha` no corpo | `senha` enviada (texto puro) é criptografada com BCrypt — é assim que se troca a senha de um professor já existente |
+| `usuario.id` preenchido **sem** `senha` no corpo | o hash atual é mantido (busca o `Usuario` no banco e reaproveita a senha) |
+
+Nunca envie um hash já criptografado no campo `senha`.
 
 Retorno: `201 Created`
 

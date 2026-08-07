@@ -20,5 +20,6 @@ public record ProfessorDTO(
     List<Telefone> telefones,
     DadosBancarios dadosBancarios,
     List<Turma> turmas,
-    String usuarioLogin
+    String usuarioLogin,
+    long usuarioID
 ) {}

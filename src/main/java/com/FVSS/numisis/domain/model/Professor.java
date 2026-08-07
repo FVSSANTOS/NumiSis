@@ -19,10 +19,6 @@ import lombok.Setter;
 @Setter
 public class Professor extends Pessoa{
 
-	@OneToOne
-	@JoinColumn(name = "usuario_id")
-	private Usuario usuario;
-
 	@Column(name = "carga_horaria")
 	private String cargaHoraria;
 

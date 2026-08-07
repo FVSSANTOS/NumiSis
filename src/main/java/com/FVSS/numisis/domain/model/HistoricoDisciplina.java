@@ -1,7 +1,7 @@
 package com.FVSS.numisis.domain.model;
 
 import com.FVSS.numisis.domain.enums.StatusHistorico;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,18 +34,12 @@ public class HistoricoDisciplina {
 	@Column(name = "faltas")
 	private Integer faltas;
 
-	@Column(name = "ano")
-	private Integer ano;
-
-	@Column(name = "semestre")
-	private Integer semestre;
-
-	@JsonIgnore
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "aluno_id")
 	private Aluno aluno;
 
-	@JsonIgnore
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "turma_id")
 	private Turma turma;
@@ -59,7 +53,28 @@ public class HistoricoDisciplina {
 
 	@Transient
 	public String getDisciplina() {
-		return turma != null && turma.getDisciplina() != null ? turma.getDisciplina().getNome() : null;
+		return turma != null ? turma.getDisciplinaNome() : null;
+	}
+
+	@Transient
+	public Long getAlunoId() {
+		return aluno != null ? aluno.getId() : null;
+	}
+
+	@Transient
+	public String getAlunoNome() {
+		return aluno != null ? aluno.getNome() : null;
+	}
+
+	// ano/semestre não são coluna própria: são os mesmos da turma (uma turma já representa um ano+semestre específico).
+	@Transient
+	public Integer getAno() {
+		return turma != null ? turma.getAno() : null;
+	}
+
+	@Transient
+	public Integer getSemestre() {
+		return turma != null ? turma.getSemestre() : null;
 	}
 
 }

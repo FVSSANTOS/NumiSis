@@ -30,9 +30,6 @@ public class Disciplina {
 	private String descricao;
 
 	@OneToMany(mappedBy = "disciplina")
-	private List<CursoDisciplina> cursoDisciplinas = new ArrayList<>();
-
-	@OneToMany(mappedBy = "disciplina")
 	private List<Turma> turmas = new ArrayList<>();
 
 	public Disciplina() {

@@ -93,6 +93,31 @@ public class HistoricoDisciplinaController {
         }
     }
 
+    @GetMapping("/turma/{turmaId}")
+    public ResponseEntity<AuthResponse<?>> listarPorTurma(@PathVariable Long turmaId, Pageable pageable) {
+        try {
+            Page<HistoricoDisciplina> page = historicoDisciplinaService.listarPorTurma(turmaId, pageable);
+            List<HistoricoDisciplina> historicos = page.getContent()
+                                     .stream()
+                                     .toList();
+
+            return ResponseEntity.status(HttpStatus.OK).body(new AuthResponse<>(
+            "Históricos da turma retornados com sucesso!",
+            new PageResponse<>(
+                historicos,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages())
+             ));
+        } catch (Exception e) {
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(new AuthResponse<>(
+                                     "Erro no processamento do servidor", e)
+                                  );
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id) {
         try {

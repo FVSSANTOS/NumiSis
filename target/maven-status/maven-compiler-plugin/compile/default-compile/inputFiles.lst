@@ -6,7 +6,6 @@ C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\config
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\controller\AlunoController.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\controller\AuthenticationController.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\controller\CursoController.java
-C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\controller\CursoDisciplinaController.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\controller\DadosBancariosController.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\controller\DisciplinaController.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\controller\EnderecoController.java
@@ -21,7 +20,6 @@ C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\domain
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\domain\enums\StatusHistorico.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\domain\model\Aluno.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\domain\model\Curso.java
-C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\domain\model\CursoDisciplina.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\domain\model\DadosBancarios.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\domain\model\Disciplina.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\domain\model\Endereco.java
@@ -44,7 +42,6 @@ C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\except
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\exception\exceptions\RegraNegocioException.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\exception\handler\GlobalExceptionHandler.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\infrastructure\repository\AlunoRepository.java
-C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\infrastructure\repository\CursoDisciplinaRepository.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\infrastructure\repository\CursoRepository.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\infrastructure\repository\DadosBancariosRepository.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\infrastructure\repository\DisciplinaRepository.java
@@ -64,7 +61,6 @@ C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\mapper
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\NumisisApplication.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\response\AuthResponse.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\service\AlunoService.java
-C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\service\CursoDisciplinaService.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\service\CursoService.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\service\DadosBancariosService.java
 C:\Users\M\Documents\projeto_numis\numisis\src\main\java\com\FVSS\numisis\service\DisciplinaService.java

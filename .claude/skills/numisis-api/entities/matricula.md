@@ -17,10 +17,16 @@ Vincula um [Aluno](aluno.md) a um [Curso](curso.md).
 | `id` | number | |
 | `dataMatricula` | string (`yyyy-MM-dd`) | |
 | `situacao` | string | texto livre, sem enum |
-| `aluno` | — | **`@JsonIgnore` — nunca aparece na resposta JSON** |
-| `curso` | — | **`@JsonIgnore` — nunca aparece na resposta JSON** |
+| `aluno` | — | **write-only** (`@JsonProperty(access = WRITE_ONLY)`) — aceito no `POST`/`PUT`, nunca aparece na resposta |
+| `curso` | — | **write-only**, mesma regra |
+| `alunoId` | number \| `null` | campo derivado (getter `@Transient`, não é coluna) — id do aluno da matrícula |
+| `alunoNome` | string \| `null` | campo derivado — nome do aluno da matrícula (`aluno.nome`). **Vem `null` na resposta de `criar`/`atualizar`** — ver nota abaixo |
+| `cursoId` | number \| `null` | campo derivado — id do curso da matrícula |
+| `cursoNome` | string \| `null` | campo derivado — nome do curso da matrícula (`curso.nome`). Mesma ressalva de `alunoNome` |
 
-⚠️ Assim como em `CursoDisciplina`/`Turma`, uma `Matricula` retornada pela API mostra apenas `id`, `dataMatricula` e `situacao` — **não há como saber por essa resposta a qual aluno/curso ela pertence**. Para criar, envie `{ "aluno": { "id": ... }, "curso": { "id": ... }, "dataMatricula": "...", "situacao": "..." }`.
+Para criar, envie `{ "aluno": { "id": ... }, "curso": { "id": ... }, "dataMatricula": "...", "situacao": "..." }` — isso vincula de verdade (`aluno`/`curso` usam `@JsonProperty(WRITE_ONLY)`, testado ponta a ponta).
+
+⚠️ **`alunoNome`/`cursoNome` vêm `null` na resposta de `POST`/`PUT`, mesmo com o vínculo salvo corretamente** (mesmo comportamento de `Turma.disciplinaNome`/`.professorNome` — ver `SKILL.md`). Logo após salvar, os objetos `aluno`/`curso` em memória ainda são só o "esqueleto" enviado no corpo (`{ "id": ... }`), sem `nome` carregado do banco — os getters derivados retornam `null` nesse momento. `alunoId`/`cursoId`, por outro lado, **vêm preenchidos já na resposta de `criar`/`atualizar`** (só dependem do `id` que já estava no esqueleto, não precisam recarregar nada). Um `GET /api/matriculas` ou `GET /api/matriculas/{id}` logo em seguida já traz `alunoNome`/`cursoNome` corretos, porque aí a entidade é recarregada do banco.
 
 ---
 
@@ -31,7 +37,12 @@ Vincula um [Aluno](aluno.md) a um [Curso](curso.md).
 **Sem paginação.** Retorno: `200 OK`
 
 ```json
-{ "message": "Matrículas retornadas com sucesso!", "dado": [ /* Matricula[] */ ] }
+{
+  "message": "Matrículas retornadas com sucesso!",
+  "dado": [
+    { "id": 1, "dataMatricula": "2026-01-01", "situacao": "ATIVA", "alunoId": 1, "alunoNome": "Fulano", "cursoId": 3, "cursoNome": "Engenharia" }
+  ]
+}
 ```
 
 ---
@@ -68,6 +79,5 @@ Retorno: `204 No Content`, `{ "message": "Matrícula deletada com sucesso!" }`, 
 
 ## Observações
 
-- Único endpoint de listagem da API que não é paginado nem tem parâmetros de página — retorna sempre a lista completa.
-- Assim como `CursoDisciplina`, o `@JsonIgnore` em `aluno`/`curso` limita o uso direto desta resposta para exibir "matrículas de um aluno" — considere obter esse dado por outra via (ex.: relação `Aluno.matriculas`, também sujeita a lazy-loading) até que o backend exponha `alunoId`/`cursoId`.
-- `GET /api/alunos` e `GET /api/alunos/{id}` já expõem os **nomes** dos cursos de cada aluno em `AlunoDTO.cursos` (derivado de `Matricula.curso.nome` no `AlunoMapper`) — para exibir "em quais cursos o aluno está matriculado" na UI, prefira esse campo em vez de cruzar dados deste endpoint manualmente. Ver [aluno.md](aluno.md).
+- Único endpoint de listagem da API que não é paginado nem tem parâmetros de página — retorna sempre a lista completa. Para uma tela de matrícula (ex.: multi-select de alunos de um curso, ou lista de cursos de um aluno com id/situação/data pra editar/excluir), filtre `GET /api/matriculas` no frontend por `alunoId`/`cursoId` — não existe hoje um `GET /api/matriculas/aluno/{alunoId}` ou `/curso/{cursoId}` dedicado (diferente de `HistoricoDisciplina`, que tem `/aluno/{alunoId}`). Peça se precisar.
+- `GET /api/alunos` e `GET /api/alunos/{id}` já expõem os **nomes** dos cursos de cada aluno em `AlunoDTO.cursos` (derivado de `Matricula.curso.nome` no `AlunoMapper`) — mas só o nome, sem o `id` da matrícula (não dá pra editar/excluir a partir dali). Para isso, use os campos derivados desta entidade (`alunoId`/`cursoId`/`alunoNome`/`cursoNome`) descritos acima.

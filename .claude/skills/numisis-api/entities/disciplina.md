@@ -25,8 +25,9 @@ Usado em `listar` e `buscar`.
 | `id` | number | |
 | `nome` | string | |
 | `descricao` | string | |
-| `cursoDisciplinas` | `CursoDisciplina[]` | vínculos com cursos — ver [curso-disciplina.md](curso-disciplina.md) |
 | `turmas` | `Turma[]` | turmas desta disciplina |
+
+Não há vínculo direto entre `Disciplina` e `Curso` — esse conceito de "grade curricular" foi removido de propósito. Uma disciplina só se conecta a um curso indiretamente, através de alunos matriculados no curso que cursam turmas dessa disciplina. Ver [curso.md](curso.md) (seção "Observações") para a explicação completa.
 
 ---
 
@@ -68,7 +69,7 @@ Retorno: `200 OK`
 
 Body: `{ "nome": string, "descricao": string }` (sem validações declaradas).
 
-Retorno: `201 Created`, `{ "message": "Disciplina salva com sucesso!", "dado": { /* Disciplina crua, inclui cursoDisciplinas: [] e turmas: [] vazios */ } }`.
+Retorno: `201 Created`, `{ "message": "Disciplina salva com sucesso!", "dado": { /* Disciplina crua, inclui turmas: [] vazio */ } }`.
 
 ---
 

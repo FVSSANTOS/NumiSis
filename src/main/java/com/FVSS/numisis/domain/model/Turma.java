@@ -3,7 +3,7 @@ package com.FVSS.numisis.domain.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -43,12 +44,12 @@ public class Turma {
 	@Column(name = "horario_termino")
 	private String horarioTermino;
 
-	@JsonIgnore
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "disciplina_id")
 	private Disciplina disciplina;
 
-	@JsonIgnore
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "professor_id")
 	private Professor professor;
@@ -57,5 +58,26 @@ public class Turma {
 	private List<HistoricoDisciplina> historicos = new ArrayList<>();
 
 	public Turma() {
+	}
+
+	// Ids/nomes derivados, sem desfazer o write-only de `disciplina`/`professor` acima.
+	@Transient
+	public Long getDisciplinaId() {
+		return disciplina != null ? disciplina.getId() : null;
+	}
+
+	@Transient
+	public String getDisciplinaNome() {
+		return disciplina != null ? disciplina.getNome() : null;
+	}
+
+	@Transient
+	public Long getProfessorId() {
+		return professor != null ? professor.getId() : null;
+	}
+
+	@Transient
+	public String getProfessorNome() {
+		return professor != null ? professor.getNome() : null;
 	}
 }

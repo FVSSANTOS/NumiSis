@@ -20,15 +20,17 @@
 | `sala` | string | |
 | `horarioInicio` | string | |
 | `horarioTermino` | string | |
-| `disciplina` | — | **`@JsonIgnore` — nunca aparece na resposta JSON**, mesmo estando presente na entidade |
-| `professor` | — | **`@JsonIgnore` — nunca aparece na resposta JSON** |
-| `historicos` | `HistoricoDisciplina[]` | históricos vinculados a esta turma |
+| `disciplina` | — | **write-only** (`@JsonProperty(access = WRITE_ONLY)`) — aceito no `POST`/`PUT` (`{ "disciplina": { "id": ... } }`), nunca aparece na resposta |
+| `disciplinaId` | number \| `null` | campo derivado (getter `@Transient`, não é coluna) — id da disciplina da turma |
+| `disciplinaNome` | string \| `null` | campo derivado — nome da disciplina da turma (`disciplina.nome`). **Vem `null` na resposta de `criar`/`atualizar`** — ver nota abaixo |
+| `professor` | — | **write-only**, mesma regra — aceito como `{ "professor": { "id": ... } }` |
+| `professorId` | number \| `null` | campo derivado — id do professor da turma |
+| `professorNome` | string \| `null` | campo derivado — nome do professor da turma (`professor.nome`). Mesma ressalva de `disciplinaNome` |
+| `historicos` | `HistoricoDisciplina[]` | históricos vinculados a esta turma, **lista completa sem paginação** (relação `@OneToMany` direta, sem `@JsonIgnore`). Para uma tela de turma (diário de classe/lista de alunos), prefira `GET /api/historicos-disciplinas/turma/{turmaId}` — mesmo dado, mas paginado e cada item já vem com `alunoId`/`alunoNome` resolvidos (ver [historico-disciplina.md](historico-disciplina.md)) |
 
-⚠️ **Importante para o frontend:** como `disciplina` e `professor` são `@JsonIgnore`, uma `Turma` retornada por qualquer endpoint deste controller **não informa a qual disciplina ou professor pertence**. Não há campo `disciplinaId`/`professorId` disponível na resposta (o `TurmaDTO` que teria esses campos não é usado). Se a tela precisar exibir disciplina/professor de uma turma, será necessário buscar essa relação por outro caminho (ex.: listar turmas a partir de `GET /api/disciplinas/{id}` — que também não expõe isso hoje — ou solicitar ajuste no backend).
+Envie `{ "disciplina": { "id": ... }, "professor": { "id": ... } }` no `POST`/`PUT` para vincular — funciona de verdade (testado ponta a ponta): `disciplina`/`professor` usam `@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)`, não `@JsonIgnore` (ver `SKILL.md` para a diferença).
 
-> Caso específico já resolvido: se o que você precisa é o **nome da disciplina a partir de um histórico** (`HistoricoDisciplina` → `Turma` → `Disciplina`), não é preciso desfazer esses `@JsonIgnore` — `HistoricoDisciplina` expõe um campo derivado `disciplina` (string) pronto pra isso. Ver [historico-disciplina.md](historico-disciplina.md).
-
-Ao **enviar** (`POST`/`PUT`) uma Turma, `disciplina` e `professor` ainda podem ser preenchidos no corpo da requisição (o `@JsonIgnore` do Jackson, por padrão, também ignora na desserialização, então o valor enviado é **ignorado ao salvar** — confirme no backend antes de depender disso; o vínculo provavelmente precisa ser feito por outro meio, como `curso-disciplina`, ou o `@JsonIgnore` precisa ser trocado por `@JsonIgnoreProperties` no backend).
+⚠️ **`disciplinaNome`/`professorNome` vêm `null` na resposta de `POST`/`PUT`, mesmo com o vínculo salvo corretamente.** Logo após salvar, os objetos `disciplina`/`professor` em memória ainda são só o "esqueleto" enviado no corpo (`{ "id": ... }`, sem `nome` carregado do banco) — os getters derivados retornam `null` nesse momento. `disciplinaId`/`professorId`, por outro lado, **vêm preenchidos já na resposta de `criar`/`atualizar`** (só dependem do `id` que já estava no esqueleto). Um `GET /api/turmas/{id}` (ou `listar`) logo em seguida já traz `disciplinaNome`/`professorNome` corretos, porque aí a entidade é recarregada do banco. **Se a tela de edição de turma precisa mostrar o professor/disciplina atual pra evitar trocar sem querer, use os dados de um `GET` (buscar/listar), não a resposta de um `POST`/`PUT` anterior.**
 
 ---
 
@@ -44,7 +46,7 @@ Retorno: `200 OK`
 {
   "message": "Turmas retornadas com sucesso!",
   "dado": {
-    "content": [ /* Turma[] (sem disciplina/professor) */ ],
+    "content": [ /* Turma[] (com disciplinaId/disciplinaNome/professorId/professorNome, mas sem disciplina/professor) */ ],
     "page": 0, "size": 20, "totalElements": 4, "totalPages": 1
   }
 }
