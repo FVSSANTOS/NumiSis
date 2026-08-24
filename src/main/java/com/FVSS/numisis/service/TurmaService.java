@@ -64,6 +64,24 @@ public class TurmaService {
         return turmaRepository.findById(id);
     }
 
+    // Usado por GET /api/turmas/{id}: um PROFESSOR só pode abrir turmas que
+    // leciona — não aceita ver a turma de outro professor trocando o id na URL.
+    public Turma buscarPorId(Long id, Usuario usuario) {
+        Turma turma = turmaRepository.findById(id)
+                .orElseThrow(() -> new NaoEncontradoException("Turma não encontrada com id: " + id));
+
+        if (usuario.getRole() == Role.PROFESSOR) {
+            Long professorId = professorRepository.findByUsuarioId(usuario.getId())
+                    .orElseThrow(() -> new NaoEncontradoException("Professor não encontrado para o usuário logado"))
+                    .getId();
+            if (!professorId.equals(turma.getProfessorId())) {
+                throw new NaoEncontradoException("Turma não encontrada com id: " + id);
+            }
+        }
+
+        return turma;
+    }
+
     public void deletarPorId(Long id) {
         turmaRepository.deleteById(id);
     }

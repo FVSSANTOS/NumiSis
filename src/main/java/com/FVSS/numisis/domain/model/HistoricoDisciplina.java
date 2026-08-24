@@ -57,6 +57,11 @@ public class HistoricoDisciplina {
 	}
 
 	@Transient
+	public String getProfessorNome() {
+		return turma != null ? turma.getProfessorNome() : null;
+	}
+
+	@Transient
 	public Long getAlunoId() {
 		return aluno != null ? aluno.getId() : null;
 	}

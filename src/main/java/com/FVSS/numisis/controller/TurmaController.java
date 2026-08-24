@@ -100,9 +100,10 @@ public class TurmaController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id) {
+    public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id, Authentication authentication) {
         try {
-            var turma = turmaService.buscarPorId(id);
+            Usuario usuario = ((UserDetailsImpl) authentication.getPrincipal()).getUsuario();
+            var turma = turmaService.buscarPorId(id, usuario);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new AuthResponse<>("Turma encontrada com sucesso!", turma));
         } catch (Exception e) {
