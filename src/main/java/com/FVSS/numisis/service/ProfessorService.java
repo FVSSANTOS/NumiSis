@@ -86,6 +86,11 @@ public class ProfessorService {
          .orElseThrow(() -> new NaoEncontradoException("Professor não encontrado com id: " + id));
     }
 
+    public Professor buscarPorUsuarioId(Long usuarioId) {
+        return professorRepository.findByUsuarioId(usuarioId)
+         .orElseThrow(() -> new NaoEncontradoException("Professor não encontrado para o usuário logado"));
+    }
+
     public void deletarPorId(Long id) {
         professorRepository.deleteById(id);
     }

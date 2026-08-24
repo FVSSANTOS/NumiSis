@@ -10,9 +10,7 @@ import com.FVSS.numisis.domain.model.HistoricoDisciplina;
 
 public interface HistoricoDisciplinaRepository extends JpaRepository<HistoricoDisciplina, Long> {
 
-    // @Query explícito: uma query derivada findByAlunoId colidiria com o getter transient
-    // getAlunoId() (Hibernate tenta resolver "alunoId" como atributo persistente e falha em
-    // runtime). Mesmo problema já visto em CursoDisciplinaRepository — ver SKILL.md.
+    
     @Query(value = "SELECT hd FROM HistoricoDisciplina hd JOIN FETCH hd.aluno JOIN FETCH hd.turma WHERE hd.aluno.id = :alunoId",
             countQuery = "SELECT COUNT(hd) FROM HistoricoDisciplina hd WHERE hd.aluno.id = :alunoId")
     Page<HistoricoDisciplina> findByAlunoId(@Param("alunoId") Long alunoId, Pageable pageable);

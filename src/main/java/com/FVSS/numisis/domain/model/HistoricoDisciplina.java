@@ -66,7 +66,6 @@ public class HistoricoDisciplina {
 		return aluno != null ? aluno.getNome() : null;
 	}
 
-	// ano/semestre não são coluna própria: são os mesmos da turma (uma turma já representa um ano+semestre específico).
 	@Transient
 	public Integer getAno() {
 		return turma != null ? turma.getAno() : null;

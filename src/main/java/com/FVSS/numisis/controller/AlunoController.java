@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.FVSS.numisis.domain.model.Aluno;
 import com.FVSS.numisis.dto.PageResponse;
 import com.FVSS.numisis.exception.exceptions.RegraNegocioException;
+import com.FVSS.numisis.infrastructure.security.UserDetailsImpl;
 import com.FVSS.numisis.mapper.AlunoMapper;
 import com.FVSS.numisis.response.AuthResponse;
 import com.FVSS.numisis.service.AlunoService;
@@ -35,7 +37,7 @@ public class AlunoController {
         this.alunoService = alunoService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    
     @PostMapping
     public ResponseEntity<AuthResponse<?>> criar(@Valid @RequestBody Aluno aluno) {
         try {
@@ -52,7 +54,7 @@ public class AlunoController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+
     @GetMapping
     public ResponseEntity<AuthResponse<?>> listar(Pageable pageable) {
         try {
@@ -76,6 +78,23 @@ public class AlunoController {
            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body(new AuthResponse<>(
                                      "Erro no processamento do servidor", e)
+                                  );
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR', 'ALUNO')")
+    @GetMapping("/me")
+    public ResponseEntity<AuthResponse<?>> buscarLogado(Authentication authentication) {
+        try {
+            Long usuarioId = ((UserDetailsImpl) authentication.getPrincipal()).getUsuario().getId();
+            var aluno = alunoService.buscarPorUsuarioId(usuarioId);
+            var alunoDTO = AlunoMapper.toDTO(aluno);
+            return ResponseEntity.status(HttpStatus.OK)
+            .body(new AuthResponse<>("Aluno encontrado com sucesso", alunoDTO));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(
+                                     new AuthResponse<>("Erro no processamento do servidor", e)
                                   );
         }
     }

@@ -8,15 +8,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.FVSS.numisis.domain.model.HistoricoDisciplina;
+import com.FVSS.numisis.domain.model.Usuario;
+import com.FVSS.numisis.exception.exceptions.NaoEncontradoException;
+import com.FVSS.numisis.infrastructure.repository.AlunoRepository;
 import com.FVSS.numisis.infrastructure.repository.HistoricoDisciplinaRepository;
 
 @Service
 public class HistoricoDisciplinaService {
 
     private final HistoricoDisciplinaRepository historicoDisciplinaRepository;
+    private final AlunoRepository alunoRepository;
 
-    public HistoricoDisciplinaService(HistoricoDisciplinaRepository historicoDisciplinaRepository) {
+    public HistoricoDisciplinaService(HistoricoDisciplinaRepository historicoDisciplinaRepository,
+            AlunoRepository alunoRepository) {
         this.historicoDisciplinaRepository = historicoDisciplinaRepository;
+        this.alunoRepository = alunoRepository;
     }
 
     public HistoricoDisciplina salvar(HistoricoDisciplina historicoDisciplina) {
@@ -28,6 +34,15 @@ public class HistoricoDisciplinaService {
     }
 
     public Page<HistoricoDisciplina> listarPorAluno(Long alunoId, Pageable pageable) {
+        return historicoDisciplinaRepository.findByAlunoId(alunoId, pageable);
+    }
+
+    // Resolve o Aluno a partir do Usuario do JWT — nunca aceita um alunoId vindo
+    // do cliente, mesmo racional de TurmaService.listarDoUsuarioLogado.
+    public Page<HistoricoDisciplina> listarDoUsuarioLogado(Usuario usuario, Pageable pageable) {
+        Long alunoId = alunoRepository.findByUsuarioId(usuario.getId())
+                .orElseThrow(() -> new NaoEncontradoException("Aluno não encontrado para o usuário logado"))
+                .getId();
         return historicoDisciplinaRepository.findByAlunoId(alunoId, pageable);
     }
 

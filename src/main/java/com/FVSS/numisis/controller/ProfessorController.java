@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.FVSS.numisis.domain.model.Professor;
 import com.FVSS.numisis.dto.PageResponse;
 import com.FVSS.numisis.exception.exceptions.RegraNegocioException;
+import com.FVSS.numisis.infrastructure.security.UserDetailsImpl;
 import com.FVSS.numisis.mapper.ProfessorMapper;
 import com.FVSS.numisis.response.AuthResponse;
 import com.FVSS.numisis.service.ProfessorService;
@@ -72,6 +74,20 @@ public class ProfessorController {
         }
     }
 
+
+    @GetMapping("/me")
+    public ResponseEntity<AuthResponse<?>> buscarLogado(Authentication authentication) {
+        try {
+            Long usuarioId = ((UserDetailsImpl) authentication.getPrincipal()).getUsuario().getId();
+            var professor = professorService.buscarPorUsuarioId(usuarioId);
+            var professorDTO = ProfessorMapper.toDTO(professor);
+            return ResponseEntity.status(HttpStatus.OK)
+            .body(new AuthResponse<>("Professor encontrado com sucesso", professorDTO));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(new AuthResponse<>("Erro no processamento do servidor", e));
+        }
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<AuthResponse<?>> buscar(@PathVariable Long id) {

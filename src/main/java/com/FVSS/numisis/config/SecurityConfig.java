@@ -3,6 +3,7 @@ package com.FVSS.numisis.config;
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -62,16 +63,19 @@ public class SecurityConfig {
 						.permitAll()
 						.requestMatchers("/h2-console/**").permitAll()
 						.requestMatchers("/api/usuarios/**").hasRole("ADMIN")
-						.requestMatchers("/api/professores/**").hasAnyRole("ADMIN", "PROFESSOR")
+						.requestMatchers(HttpMethod.GET, "/api/professores/me").hasRole("PROFESSOR")
+						.requestMatchers("/api/professores/**").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.GET, "/api/turmas/me").hasAnyRole("ADMIN", "PROFESSOR", "ALUNO")
+						.requestMatchers(HttpMethod.GET, "/api/alunos/me").hasRole( "ALUNO")
+						.requestMatchers("/api/alunos/**").hasRole("ADMIN")
 						.requestMatchers(
 								"/api/cursos/**",
 								"/api/disciplinas/**",
-								"/api/turmas/**")
-						.hasAnyRole("ADMIN", "PROFESSOR")
-						.requestMatchers(
-								"/api/matriculas/**",
-								"/api/historicos-disciplinas/**")
-						.hasAnyRole("ADMIN", "PROFESSOR", "ALUNO")
+								"/api/turmas/**",
+								"/api/matriculas/**")
+						.hasAnyRole("ADMIN")
+						.requestMatchers(HttpMethod.GET, "/api/historicos-disciplinas/me").hasRole("ALUNO")
+						.requestMatchers("/api/historicos-disciplinas/**").hasAnyRole("ADMIN", "PROFESSOR")
 						.requestMatchers("/api/**").authenticated()
 						.anyRequest().permitAll())
 				.authenticationProvider(authenticationProvider())

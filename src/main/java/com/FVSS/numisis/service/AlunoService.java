@@ -35,7 +35,7 @@ public class AlunoService {
             throw new RegraNegocioException("Já existe um aluno com esse CPF.");
         }
 
-        if (aluno.getUsuario() != null && aluno.getUsuario().getId() == null
+        if (aluno.getUsuario() != null && aluno.getUsuario().getId() != null
                 && usuarioRepository.existsByLogin(aluno.getUsuario().getLogin())) {
             throw new RegraNegocioException("Já existe um usuário com esse login.");
         }
@@ -73,7 +73,6 @@ public class AlunoService {
         return alunoRepository.save(aluno);
     }
 
-    // Evita salvar senha em texto puro ou zerar o hash quando o corpo não envia uma senha nova.
     private void tratarSenhaUsuario(Usuario usuario) {
         if (usuario == null) {
             return;
@@ -100,6 +99,11 @@ public class AlunoService {
     public Aluno buscarPorId(Long id) {
         return alunoRepository.findById(id)
             .orElseThrow(() -> new NaoEncontradoException("Aluno não encontrado com id: " + id));
+    }
+
+    public Aluno buscarPorUsuarioId(Long usuarioId) {
+        return alunoRepository.findByUsuarioId(usuarioId)
+            .orElseThrow(() -> new NaoEncontradoException("Aluno não encontrado para o usuário logado"));
     }
 
     public void deletarPorId(Long id) {

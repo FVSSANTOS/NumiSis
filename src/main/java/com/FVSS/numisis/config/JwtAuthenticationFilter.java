@@ -60,9 +60,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				}
 			}
 		} catch (Exception ex) {
-			// Token inválido, expirado ou de um usuário que não existe mais: não autentica
-			// e deixa o filtro seguir — a rota decide se aceita anônimo (ex.: /api/auth/login)
-			// ou barra por falta de autenticação (401 via JwtAuthenticationEntryPoint).
 			SecurityContextHolder.clearContext();
 		}
 
